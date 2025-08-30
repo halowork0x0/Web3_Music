@@ -6,7 +6,7 @@ import { RouterView } from 'vue-router';
 <template>
   <div class="contain">
     <HeaderContain />
-    <RouterView />
+    <RouterView class="rviewContain"/>
   </div>
 </template>
 
@@ -14,5 +14,11 @@ import { RouterView } from 'vue-router';
 .contain {
   width: 100%;
   height: 100%;
+}
+.rviewContain{
+  display: flex;
+  width: 100%;
+  height: 100%;
+  background: gray;
 }
 </style>
