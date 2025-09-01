@@ -14,8 +14,8 @@ const router = createRouter({
       component: () => import("../views/NftView.vue"),
     },
     {
-      path: "/crosschain",
-      component: () => import("../views/CrosschainView.vue"),
+      path: "/bridge",
+      component: () => import("../views/BridgeView.vue"),
     },
     {
       path: "/faucet",
