@@ -10,8 +10,8 @@ const router = createRouter({
       component: DexView,
     },
     {
-      path: "/nft",
-      component: () => import("../views/NftView.vue"),
+      path: "/activity",
+      component: () => import("../views/ActivityView.vue"),
     },
     {
       path: "/bridge",
