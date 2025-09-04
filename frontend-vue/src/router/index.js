@@ -20,6 +20,11 @@ const router = createRouter({
     {
       path: "/faucet",
       component: () => import("../views/FaucetView.vue"),
+    },
+    {
+      path: "/musicfund/detail",
+      name: 'fundDetail',
+      component: () => import("../views/MusicFundDetail.vue"),
     }
   ],
 });

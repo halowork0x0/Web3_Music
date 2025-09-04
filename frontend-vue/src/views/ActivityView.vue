@@ -1,5 +1,9 @@
 <script setup>
-
+  import { useRouter } from 'vue-router';
+  const router = useRouter();
+  function forwardToDetail() {
+    router.push('/musicfund/detail');
+  }
 </script>
 
 <template>
@@ -13,7 +17,7 @@
         <p>Fundme End: 2025-12-10</p>
         <p>plan fund: 5000 usd</p>
         <p>now fund: 2000 usd</p>
-        <p class="detailTxt">Detail ></p>
+        <p class="detailTxt" @click="forwardToDetail">Detail ></p>
       </div>
 
       <div class="fundItem">
