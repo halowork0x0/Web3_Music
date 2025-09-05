@@ -1,6 +1,5 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import DexView from '../views/DexView.vue'
-// import NftView from '../views/NftView.vue'
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -25,6 +24,11 @@ const router = createRouter({
       path: "/musicfund/detail",
       name: 'fundDetail',
       component: () => import("../views/MusicFundDetail.vue"),
+    },
+    {
+      path: "/nft/detail",
+      name: 'nftDetail',
+      component: () => import("../views/NftDetail.vue"),
     }
   ],
 });

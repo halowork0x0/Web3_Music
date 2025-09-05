@@ -3,6 +3,11 @@
   const router = useRouter();
   function forwardToDetail() {
     router.push('/musicfund/detail');
+  };
+
+  function forwardNftDetail() {
+    console.log('bbbb')
+    router.push('/nft/detail');
   }
 </script>
 
@@ -11,43 +16,35 @@
     <p class="musicTitleTxt">Music Fund</p>
     <div class="fundBox">
       <div class="fundItem">
-        <p>Song: 千里之外</p>
-        <p>Singer: 周杰伦</p>
-        <p>Fundme Create: 2025-11-10</p>
-        <p>Fundme End: 2025-12-10</p>
-        <p>plan fund: 5000 usd</p>
-        <p>now fund: 2000 usd</p>
-        <p class="detailTxt" @click="forwardToDetail">Detail ></p>
+        <img class="fundItemImg"></img>
+        <div class="fundItemBottom">
+          <p>completed: 80%</p>
+          <p class="detailTxt" @click="forwardToDetail">Detail ></p>
+        </div>
       </div>
 
       <div class="fundItem">
-        <p>Song: 千里之外</p>
-        <p>Singer: 周杰伦</p>
-        <p>Fundme Create: 2025-11-10</p>
-        <p>Fundme End: 2025-12-10</p>
-        <p>plan fund: 5000 usd</p>
-        <p>now fund: 2000 usd</p>
-        <p class="detailTxt">Detail ></p>
+        <img class="fundItemImg"></img>
+        <div class="fundItemBottom">
+          <p>completed: 80%</p>
+          <p class="detailTxt" @click="forwardToDetail">Detail ></p>
+        </div>
       </div>
 
       <div class="fundItem">
-        <p>Song: 千里之外</p>
-        <p>Singer: 周杰伦</p>
-        <p>Fundme Create: 2025-11-10</p>
-        <p>Fundme End: 2025-12-10</p>
-        <p>plan fund: 5000 usd</p>
-        <p>now fund: 2000 usd</p>
-        <p class="detailTxt">Detail ></p>
+        <img class="fundItemImg"></img>
+        <div class="fundItemBottom">
+          <p>completed: 80%</p>
+          <p class="detailTxt" @click="forwardToDetail">Detail ></p>
+        </div>
       </div>
 
       <div class="fundItem">
-        <p>Song: 千里之外</p>
-        <p>Singer: 周杰伦</p>
-        <p>Fundme Create: 2025-11-10</p>
-        <p>Fundme End: 2025-12-10</p>
-        <p>plan fund: 5000 usd</p>
-        <p>now fund: 2000 usd</p>
-        <p class="detailTxt">Detail ></p>
+        <img class="fundItemImg"></img>
+        <div class="fundItemBottom">
+          <p>completed: 80%</p>
+          <p class="detailTxt" @click="forwardToDetail">Detail ></p>
+        </div>
       </div>
     </div>
 
@@ -65,7 +62,7 @@
       </div>
 
       <div class="nftItem">
-        <div class="nftPic">
+        <div class="nftPic" @click="forwardNftDetail">
         </div>
         <div class="priceMintBox">
           <p>Price: 20 USD</p>
@@ -76,7 +73,7 @@
       </div>
 
       <div class="nftItem">
-        <div class="nftPic">
+        <div class="nftPic" @click="forwardNftDetail">
         </div>
         <div class="priceMintBox">
           <p>Price: 20 USD</p>
@@ -87,7 +84,7 @@
       </div>
 
       <div class="nftItem">
-        <div class="nftPic">
+        <div class="nftPic" @click="forwardNftDetail">
         </div>
         <div class="priceMintBox">
           <p>Price: 20 USD</p>
@@ -98,7 +95,7 @@
       </div>
 
       <div class="nftItem">
-        <div class="nftPic">
+        <div class="nftPic" @click="forwardNftDetail">
         </div>
         <div class="priceMintBox">
           <p>Price: 20 USD</p>
@@ -138,7 +135,7 @@
   margin-top: 20px;
   margin-right: 40px;
   width: 580px;
-  height: 200px;
+  height: 260px;
   border-radius: 20px;
   padding: 20px;
   border-width: 4px;
@@ -146,10 +143,23 @@
   border-style: solid;
 }
 
-.detailTxt {
+.fundItemImg {
+  width: 540px;
+  height: 180px;
+}
+
+.fundItemBottom {
+  width: 540px;
+  height: 50px;
   position: absolute;
-  bottom: 20px;
-  right: 20px;
+  bottom: 0px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detailTxt {
   color: orange;
   font-weight: bold;
 }
