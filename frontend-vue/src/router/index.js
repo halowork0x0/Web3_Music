@@ -1,12 +1,11 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-import DexView from '../views/DexView.vue'
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
     {
-      path: "/dex",
-      component: DexView,
+      path: "/swap",
+      component: () => import("../views/SwapView.vue"),
     },
     {
       path: "/activity",

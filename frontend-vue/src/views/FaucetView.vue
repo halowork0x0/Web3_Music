@@ -1,8 +1,9 @@
 <script setup>
-let hadRequest = false
+import { ref } from 'vue';
+
+const hadRequest = ref(false)
 function requestTestToken() {
-  this.hadRequest = true;
-  console.log('hadRequest====', this.hadRequest)
+  hadRequest.value = true
 }
 </script>
 
@@ -15,18 +16,18 @@ function requestTestToken() {
     <div class="inputBox">
       <input class="addressInput" placeholder="request evm address"></input>
       <div class="testTokenView">
-        <img class="tokenIcon"></img>
+        <img class="tokenIcon" src="../assets/images/icon_blue.png"></img>
         <p class="tokenTxt">WMC</p>
       </div>
     </div>
 
-    <button class="requestBtn" v-if="hadRequest==false" @click="requestTestToken()">
+    <div class="requestBtn" v-if="hadRequest==false" @click="requestTestToken()">
       Claim
-    </button>
+    </div>
 
-    <button class="windowBtn" v-if="hadRequest==true">
+    <div class="windowBtn" v-if="hadRequest==true">
       you can request after 16:20:11
-    </button>
+    </div>
     
   </div>
 </template>
@@ -37,7 +38,7 @@ function requestTestToken() {
   flex-direction: column;
   width: 600px;
   height: 400px;
-  background:rgb(207, 197, 197);
+  background: #f2f2f2;
   border-radius: 12px;
   margin: 50px auto;
   padding: 20px;
@@ -67,7 +68,7 @@ function requestTestToken() {
   align-items: center;
   width: 100px;
   height: 50px;
-  background: gray;
+  background: #f2f2f2;
 }
 
 .tokenIcon {
@@ -79,7 +80,7 @@ function requestTestToken() {
 .tokenTxt {
   margin-left: 10px;
   font-size: 14px;
-  color: white;
+  color: gray;
   font-weight: bold;
 }
 
@@ -87,15 +88,20 @@ function requestTestToken() {
   margin: 30px auto;
   width: 160px;
   height: 50px;
+  line-height: 50px;
+  color: white;
+  text-align: center;
   border-radius: 30px;
-  background: orange;
+  background: #13227a;
 }
 
 .windowBtn {
   margin: 30px auto;
   width: 240px;
   height: 50px;
+  line-height: 50px;
+  text-align: center;
   border-radius: 30px;
-  background: rgb(237, 196, 120);
+  background: rgb(94, 119, 228);
 }
 </style>

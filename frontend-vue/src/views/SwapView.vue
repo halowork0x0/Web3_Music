@@ -1,5 +1,16 @@
 <script setup>
-let dialogShow = false
+import { ref } from 'vue'
+const dialogShow = ref(false)
+const PAY_SELECTTYPE = 1
+const RECEIVE_SELECTTYPE = 2
+const select_type = ref(0)
+function showSelectTokenDialogFn(selectType) {
+  dialogShow.value = true
+}
+
+function closeSelectDialogFn() {
+  dialogShow.value = false
+}
 </script>
 
 <template>
@@ -19,11 +30,10 @@ let dialogShow = false
       </div>
 
       <div class="selectInputBox">
-        <select class="tokenSelect">
-          <option>BTC</option>
-          <option>ETH</option>
-          <option>SOL</option>
-        </select>
+        <div class="tokenSelectView" @click="showSelectTokenDialogFn(PAY_SELECTTYPE)">
+          <p>BTC</p>
+          <img class="downImg" src="../assets/images/down.png"/>
+        </div>
 
         <input class="amountInput" placeholder="0">
       
@@ -34,27 +44,21 @@ let dialogShow = false
     </div>
 
     <div class="changeBox">
-
+      <img class="exchangeImg" src="../assets/images/exchange.png" />
     </div>
 
     <div class="swapInputBox">
       <div class="inputTitleBox">
         <p style="font-weight: bold;">You receive</p>
-        <div style="display: flex; flex-direction: row;">
-          <p>100 USD</p>
-          <p style="margin-left: 8px; color: orange;">Max</p>
-        </div>
       </div>
 
       <div class="selectInputBox">
-        <select class="tokenSelect">
-          <option>BTC</option>
-          <option>ETH</option>
-          <option>SOL</option>
-        </select>
+        <div class="tokenSelectView" @click="showSelectTokenDialogFn(RECEIVE_SELECTTYPE)">
+          <p>BTC</p>
+          <img class="downImg" src="../assets/images/down.png"/>
+        </div>
 
         <input class="amountInput" placeholder="0">
-      
         </input>
       </div>
 
@@ -72,19 +76,24 @@ let dialogShow = false
     <div class="selectDialog">
       <div class="dialogTitleBox">
         <p style="font-size: 20px; font-weight: bold;">Select a token</p>
-        <div class="deleteBtn">X</div>
+        <img class="deleteBtnImg" src="../assets/images/delete.png" @click="closeSelectDialogFn()"/>
       </div>
 
       <div class="inputSearchBox">
-        <img class="searchImg"></img>
+        <img class="searchImg" src="../assets/images/search.png" />
         <input class="searchInput" placeholder="Search tokens by name or contract address"></input>
       </div>
 
-      <p style="margin-left: 20px;">Token list</p>
+      <p style="margin-left: 20px; margin-top: 20px;">Token list</p>
 
-      <div style="display: flex; flex-direction: column;">
+      <div class="tokenlistBox">
         <div class="tokenlistItem">
           <p>USDT</p>
+          <p>0</p>
+        </div>
+
+        <div class="tokenlistItem">
+          <p>USDC</p>
           <p>0</p>
         </div>
 
@@ -103,7 +112,7 @@ let dialogShow = false
   flex-direction: column;
   width: 500px;
   height: 600px;
-  background:rgb(207, 197, 197);
+  background: #f2f2f2;;
   border-radius: 12px;
   margin: 50px auto;
   padding: 20px;
@@ -149,10 +158,22 @@ let dialogShow = false
   padding: 0 40px;
 }
 
-.tokenSelect {
+.tokenSelectView {
+  padding: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   width: 80px;
   height: 35px;
-  text-align: center;
+  border-width: 1px;
+  border-radius: 2px;
+  border-style: solid;
+  border-color: gray;
+}
+
+.downImg {
+  width: 12px;
+  height: 12px;
 }
 
 .amountInput {
@@ -177,6 +198,13 @@ let dialogShow = false
   margin: 10px auto;
 }
 
+.exchangeImg {
+  margin-top: 6px;
+  margin-left: 6px;
+  width: 28px;
+  height: 28px;
+}
+
 .rateShowTxt {
   margin: 20px 20px;
 }
@@ -186,7 +214,7 @@ let dialogShow = false
   width: 360px;
   height: 50px;
   border-radius: 25px;
-  background-color: orange;
+  background-color: #13227a;
   color: white;
   text-align: center;
   font-size: 20px;
@@ -218,14 +246,9 @@ let dialogShow = false
   justify-content: space-between;
 }
 
-.deleteBtn {
-  width: 32px;
-  height: 32px;
-  border-radius: 32px;
-  text-align: center;
-  font-size: 20px;
-  color: white;
-  background: gray;
+.deleteBtnImg {
+  width: 28px;
+  height: 28px;
 }
 
 .inputSearchBox {
@@ -235,37 +258,40 @@ let dialogShow = false
   margin: 10px auto;
   width: 460px;
   height: 50px;
-  border-radius: 20px;
-  background-color: rgb(203, 187, 187);
+  border-radius: 12px;
+  background: #f2f2f2;
 }
 
 .searchImg {
   margin-left: 10px;
-  width: 40px;
-  height: 40px;
-  border-radius: 40px;
-  background: white;
+  width: 24px;
+  height: 24px;
 }
 
 .searchInput {
-  margin-left: 10px;
+  margin-left: 20px;
+  padding: 10px;
   width: 380px;
   height: 40px;
   border-width: 0px;
   font-size: 16px;
   color: black;
-  background-color: rgb(203, 187, 187);
+}
+
+.tokenlistBox {
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .tokenlistItem {
   margin-top: 10px;
   margin-left: 20px;
-  width: 460px;
+  width: 220px;
   height: 50px;
-  border-color: black;
-  border-width: 10px;
-  background: gray;
+  border-color: gray;
+  border-width: 1px;
   border-radius: 6px;
+  border-style: solid;
   display: flex;
   align-items: center;
   justify-content: space-between;

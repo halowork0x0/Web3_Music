@@ -93,7 +93,7 @@ let dialogShow = false
   flex-direction: column;
   width: 500px;
   height: 600px;
-  background:rgb(207, 197, 197);
+  background: #f2f2f2;
   border-radius: 12px;
   margin: 50px auto;
   padding: 20px;
@@ -167,7 +167,7 @@ let dialogShow = false
   width: 360px;
   height: 50px;
   border-radius: 25px;
-  background-color: orange;
+  background-color: #13227a;
   color: white;
   text-align: center;
   font-size: 20px;

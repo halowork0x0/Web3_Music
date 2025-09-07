@@ -160,7 +160,7 @@
 }
 
 .detailTxt {
-  color: orange;
+  color: #13227a;
   font-weight: bold;
 }
 
@@ -204,7 +204,7 @@
 .mintBtn {
   width: 68px;
   height: 30px;
-  background: orange;
+  background: #13227a;
   font-size: 16px;
   color: white;
   border-width: 0px;

@@ -89,7 +89,8 @@
   right: 20px;
   width: 100px;
   height: 40px;
-  background: orange;
+  background: #13227a;
+  color: white;
 }
 
 .regularBox {
