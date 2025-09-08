@@ -102,6 +102,7 @@ function requestTestToken() {
   line-height: 50px;
   text-align: center;
   border-radius: 30px;
-  background: rgb(94, 119, 228);
+  color: white;
+  background: rgb(113, 134, 228);
 }
 </style>

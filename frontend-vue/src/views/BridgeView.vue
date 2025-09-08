@@ -1,34 +1,52 @@
 <script setup>
-let dialogShow = false
+import { ref } from 'vue'
+const dialogShow = ref(false)
+const dialogType_from = 1
+const dialogType_to = 2
+const dialogType_token = 3
+const dialog_type = ref(0)
+
+let chainAry = ['Etherum','Sepolia','Polygon']
+const showChainAry = ref(chainAry)
+let tokenAry = ['USDC','USDT','ETH']
+const showTokenAry = ref(tokenAry)
+
+function showSelectDialogFn(opentype) {
+  dialog_type.value = opentype
+  dialogShow.value = true
+}
+
+function closeSelectDialogFn() {
+  dialogShow.value = false
+}
 </script>
 
 <template>
   <div class="bridgeBox">
-    <div class="titleBox">
-      <p style="font-size: 24px; font-weight: bold;">Bridge</p>
-      <div class="showSelectToken">
-        USDT
-      </div>
-    </div>
+    <p style="font-size: 24px; font-weight: bold;">Bridge</p>
     
-    <div class="bridgeInputBox" style="margin-top: 30px;">
-      <div class="inputTitleBox">
+    <div class="chainItemBox" style="margin-top: 30px;">
+      <div class="space_between_center">
         <p style="font-weight: bold;">From</p>
-        <div style="display: flex; flex-direction: row;">
-          <p>100 USD</p>
-          <p style="margin-left: 8px; color: orange;">Max</p>
+
+        <div class="selectView" @click="showSelectDialogFn(dialogType_from)">
+          <p>BTC</p>
+          <img class="downImg" src="../assets/images/down.png"/>
         </div>
       </div>
 
-      <div class="selectInputBox">
-        <select class="chainSelect">
-          <option>Sepolia</option>
-          <option>Polygon test</option>
-        </select>
+      <div class="tokenSelectInputBox">
+        <p style="font-weight: bold; margin-top: 20px;">Token</p>
 
-        <input class="amountInput" placeholder="0">
-      
-        </input>
+        <div class="space_between_center">
+          <input class="amountInput" placeholder="0">
+          </input>
+
+          <div class="selectView" @click="showSelectDialogFn(dialogType_token)">
+            <p>BTC</p>
+            <img class="downImg" src="../assets/images/down.png"/>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -36,20 +54,14 @@ let dialogShow = false
 
     </div>
 
-    <div class="bridgeInputBox">
-      <div class="inputTitleBox">
+    <div class="chainItemBox">
+      <div class="space_between_center">
         <p style="font-weight: bold;">To</p>
-      </div>
 
-      <div class="selectInputBox">
-        <select class="chainSelect">
-          <option>Sepolia</option>
-          <option>Polygon test</option>
-        </select>
-
-        <input class="amountInput" placeholder="0">
-      
-        </input>
+        <div class="selectView" @click="showSelectDialogFn(dialogType_to)">
+          <p>BTC</p>
+          <img class="downImg" src="../assets/images/down.png"/>
+        </div>
       </div>
     </div>
 
@@ -58,29 +70,33 @@ let dialogShow = false
     </button>
   </div>
 
-  <div class="tokenSelectDialogBox" v-if="dialogShow">
+  <div class="selectDialogBox" v-if="dialogShow">
     <div class="selectDialog">
       <div class="dialogTitleBox">
-        <p style="font-size: 20px; font-weight: bold;">Select a token</p>
-        <div class="deleteBtn">X</div>
+        <p style="font-size: 20px; font-weight: bold;">
+         {{dialog_type==1?'Select Sender Chain':dialog_type==2?'Select Receiver Chain':'Select Token'}}
+        </p>
+        <img class="deleteBtnImg" src="../assets/images/delete.png" @click="closeSelectDialogFn()"/>
       </div>
 
-      <div class="inputSearchBox">
-        <img class="searchImg"></img>
+      <div class="inputSearchBox" v-if="dialog_type==3">
+        <img class="searchImg" src="../assets/images/search.png" />
         <input class="searchInput" placeholder="Search tokens by name or contract address"></input>
       </div>
 
-      <p style="margin-left: 20px;">Token list</p>
+      <p style="margin-left: 20px; margin-top: 20px;">
+        {{dialog_type==3?'Token list':'Chain list'}}
+      </p>
 
-      <div style="display: flex; flex-direction: column;">
-        <div class="tokenlistItem">
-          <p>USDT</p>
-          <p>0</p>
+      <div class="tokenlistBox" v-if="dialog_type!=3">
+        <div class="listItem" v-for="item in showChainAry">
+          <p>{{item}}</p>
         </div>
+      </div>
 
-        <div class="tokenlistItem">
-          <p>USDC</p>
-          <p>0</p>
+      <div class="tokenlistBox" v-if="dialog_type==3">
+        <div class="listItem" v-for="item in showTokenAry">
+          <p>{{item}}</p>
         </div>
       </div>
     </div>
@@ -92,7 +108,6 @@ let dialogShow = false
   display: flex;
   flex-direction: column;
   width: 500px;
-  height: 600px;
   background: #f2f2f2;
   border-radius: 12px;
   margin: 50px auto;
@@ -105,52 +120,35 @@ let dialogShow = false
   align-items: center;
 }
 
-.showSelectToken {
-  margin-left: 20px;
-  width: 100px;
-  height: 40px;
-  line-height: 40px;
-  text-align: center;
-  background: gray;
-}
-
-.bridgeInputBox {
+.chainItemBox {
+  padding: 20px;
   width: 420px;
-  height: 140px;
   background: white;
   border-radius: 12px;
   margin: 0 auto;
 }
 
-.inputTitleBox {
+.space_between_center {
   display: flex;
-  width: 420px;
-  height: 30px;
-  padding: 40px;
   align-items: center;
   justify-content: space-between;
 }
 
-.selectInputBox {
+.tokenSelectInputBox {
+  margin-top: 20px;
   display: flex;
-  width: 420px;
-  height: 30px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 40px;
-}
-
-.chainSelect {
-  width: 80px;
-  height: 35px;
-  text-align: center;
+  flex-direction: column;
+  width: 380px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: gray;
 }
 
 .amountInput {
   width: 200px;
   height: 35px;
   border-width: 0;
-  text-align: right;
+  text-align: left;
   font-size: 18px;
 }
 
@@ -174,7 +172,35 @@ let dialogShow = false
   border-width: 0px;
 }
 
-.tokenSelectDialogBox {
+.deleteBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 32px;
+  text-align: center;
+  font-size: 20px;
+  color: white;
+  background: gray;
+}
+
+.selectView {
+  padding: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100px;
+  height: 40px;
+  border-width: 1px;
+  border-radius: 2px;
+  border-style: solid;
+  border-color: gray;
+}
+
+.downImg {
+  width: 12px;
+  height: 12px;
+}
+
+.selectDialogBox {
   position: absolute;
   left: 0px;
   top: 0px;
@@ -199,14 +225,9 @@ let dialogShow = false
   justify-content: space-between;
 }
 
-.deleteBtn {
-  width: 32px;
-  height: 32px;
-  border-radius: 32px;
-  text-align: center;
-  font-size: 20px;
-  color: white;
-  background: gray;
+.deleteBtnImg {
+  width: 28px;
+  height: 28px;
 }
 
 .inputSearchBox {
@@ -216,40 +237,44 @@ let dialogShow = false
   margin: 10px auto;
   width: 460px;
   height: 50px;
-  border-radius: 20px;
-  background-color: rgb(203, 187, 187);
+  border-radius: 12px;
+  background: #f2f2f2;
 }
 
 .searchImg {
   margin-left: 10px;
-  width: 40px;
-  height: 40px;
-  border-radius: 40px;
-  background: white;
+  width: 24px;
+  height: 24px;
 }
 
 .searchInput {
-  margin-left: 10px;
+  margin-left: 20px;
+  padding: 10px;
   width: 380px;
   height: 40px;
   border-width: 0px;
   font-size: 16px;
   color: black;
-  background-color: rgb(203, 187, 187);
 }
 
-.tokenlistItem {
+.tokenlistBox {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.listItem {
   margin-top: 10px;
   margin-left: 20px;
-  width: 460px;
+  width: 220px;
   height: 50px;
-  border-color: black;
-  border-width: 10px;
-  background: gray;
+  border-color: gray;
+  border-width: 1px;
   border-radius: 6px;
+  border-style: solid;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 10px;
 }
+
 </style>

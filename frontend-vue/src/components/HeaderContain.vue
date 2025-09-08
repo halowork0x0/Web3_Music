@@ -6,7 +6,7 @@ const BRIDGE_SELECTED = 2;
 const ACTIVITY_SELECTED = 3;
 const FAUCET_SELECTED = 4;
 
-const select_type = ref(2);
+const select_type = ref(1);
 
 function clickRouterLinkFn(selected) {
   select_type.value = selected
@@ -22,13 +22,13 @@ function clickRouterLinkFn(selected) {
       
       <div class="routerlinkBox">
         <RouterLink 
-        :class="['rlinkNormal', select_type==SWAP_SELECTED?'showBottomline':'']" to="/swap" @click="clickRouterLinkFn(SWAP_SELECTED)">Swap</RouterLink>
+        :class="['rlinkNormal', select_type==SWAP_SELECTED?'selectTagStyle':'unSelectTagStyle']" to="/swap" @click="clickRouterLinkFn(SWAP_SELECTED)">Swap</RouterLink>
         <router-link 
-        :class="['rlinkNormal', select_type==BRIDGE_SELECTED?'showBottomline':'']" to="/bridge" @click="clickRouterLinkFn(BRIDGE_SELECTED)">Bridge</router-link>
+        :class="['rlinkNormal', select_type==BRIDGE_SELECTED?'selectTagStyle':'unSelectTagStyle']" to="/bridge" @click="clickRouterLinkFn(BRIDGE_SELECTED)">Bridge</router-link>
         <router-link 
-        :class="['rlinkNormal', select_type==ACTIVITY_SELECTED?'showBottomline':'']" to="/activity" @click="clickRouterLinkFn(ACTIVITY_SELECTED)">Activity</router-link>
+        :class="['rlinkNormal', select_type==ACTIVITY_SELECTED?'selectTagStyle':'unSelectTagStyle']" to="/activity" @click="clickRouterLinkFn(ACTIVITY_SELECTED)">Activity</router-link>
         <router-link 
-        :class="['rlinkNormal', select_type==FAUCET_SELECTED?'showBottomline':'']" to="/faucet" @click="clickRouterLinkFn(FAUCET_SELECTED)">Faucet</router-link>
+        :class="['rlinkNormal', select_type==FAUCET_SELECTED?'selectTagStyle':'unSelectTagStyle']" to="/faucet" @click="clickRouterLinkFn(FAUCET_SELECTED)">Faucet</router-link>
       </div>
       <button class="connectBtn" @click="doConnectFn">connect</button>
     </div>
@@ -83,12 +83,17 @@ function clickRouterLinkFn(selected) {
   height: 100px;
   line-height: 100px;
   font-size: 20px;
-  color: white;
 }
 
-.showBottomline {
+.selectTagStyle {
   border-bottom-style: solid;
   border-bottom-color: orange;
   border-bottom-width: 4px;
+  color: white;
+}
+
+.unSelectTagStyle {
+  border-bottom-width: 4px;
+  color: rgb(167, 157, 157);
 }
 </style>
