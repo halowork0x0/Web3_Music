@@ -1,20 +1,38 @@
 <script setup>
 import { ref } from 'vue'
+const showSlippageSetting = ref(false)
+const auto_type = 1
+const custom_type = 2
+const custom_slippage = ref(0.5)
+const slippage_type = ref(1)
+
+function clickSlippageSettingFn() {
+  showSlippageSetting.value = !showSlippageSetting.value
+  console.log("custom_slippage==", custom_slippage.value)
+}
+
+function chooseSlippageTypeFn(type) {
+  slippage_type.value = type
+}
+
 let tokenAry = [
   {
     tokenName: 'USDC',
     tokenContract: '1111',
     balance: 100,
+    tokenValue: 1,
   },
   {
     tokenName: 'USDT',
     tokenContract: '2222',
     balance: 60,
+    tokenValue: 1,
   },
   {
     tokenName: 'ETH',
     tokenContract: '3333',
     balance: 10,
+    tokenValue: 3000,
   }
 ]
 const showTokenAry = ref(tokenAry)
@@ -27,12 +45,14 @@ const payToken = ref({
   tokenName: '',
   tokenContract: '',
   balance: 0,
+  tokenValue: 0
 })
 
 const receiveToken = ref({
   tokenName: '',
   tokenContract: '',
   balance: 0,
+  tokenValue: 0
 })
 
 const payTokenValue = ref(0)
@@ -49,16 +69,50 @@ function closeSelectDialogFn() {
 }
 
 function selectSwapTokenFn(selectToken) {
-  console.log('openType===', openType.value)
   if (openType.value == 1 && selectToken.tokenContract != receiveToken.value.tokenContract) {
     payToken.value = selectToken
+    swapObject.value.fromTokenContract = selectToken.tokenContract
     dialogShow.value = false
-    console.log("aaaaa")
+    judgeSwapAvailableFn()
   } else if(openType.value == 2 && selectToken.tokenContract != payToken.value.tokenContract){
     receiveToken.value = selectToken
+    swapObject.value.toTokenContract = selectToken.tokenContract
     dialogShow.value = false
-    console.log("bbbbb")
+    judgeSwapAvailableFn()
   }
+}
+
+function calSwapRateFn() {
+
+}
+
+const swapObject = ref({
+  fromTokenContract: '',
+  fromTokenAmount: 0,
+  toTokenContract: '',
+  toTokenAmount: 0
+})
+
+const swapAvail = ref(false)
+function judgeSwapAvailableFn () {
+  if (swapObject.value.fromTokenContract!='' && 
+     swapObject.value.fromTokenAmount>0 && swapObject.value.toTokenContract!=''){
+    swapAvail.value = true
+  } else {
+    swapAvail.value = false
+  }
+}
+
+function handleSwapAmountInputFn(event) {
+  let inputAmount = event.target.value!=''?event.target.value:0
+  console.log('inputAmount===', inputAmount)
+  swapObject.value.fromTokenAmount = inputAmount
+  judgeSwapAvailableFn()
+}
+
+function doclickMaxFn() {
+  swapObject.value.fromTokenAmount = payToken.value.balance
+  console.log('swapObject==', swapObject.value)
 }
 </script>
 
@@ -66,15 +120,39 @@ function selectSwapTokenFn(selectToken) {
   <div class="swapBox">
     <div class="titleBox">
       <p style="font-size: 24px; font-weight: bold;">swap</p>
-      <img class="gasSetting"></img>
+      <div class="flex_row_center">
+        <p class="slippageShow" v-if="slippage_type==custom_type">{{custom_slippage}}% Slippage</p>
+        <img class="gasSetting" src="../assets/images/settings.png" @click="clickSlippageSettingFn"></img>
+      </div>
+
+      <div class="settingBox" v-if="showSlippageSetting">
+        <p>Max Slippage</p>
+
+        <div class="flex_spacebetween_center" style="margin-top: 20px;">
+          <div class="flex_row_center">
+            <p :class="['slipsetting', slippage_type==auto_type?'slipSelected':'slipUnselect']"
+             style="margin-right: 4px;" @click="chooseSlippageTypeFn(1)">Auto</p>
+            <p :class="['slipsetting', slippage_type==custom_type?'slipSelected':'slipUnselect']" 
+            @click="chooseSlippageTypeFn(2)">Custom</p>
+          </div>
+
+          <div class="flex_row_center" v-if="slippage_type==2">
+            <input class="slippageInput" style="margin-right: 4px;" placeholder="0.5" v-model="custom_slippage">
+            </input>
+            <p>%</p>
+          </div>
+        </div>
+        
+      </div>
     </div>
     
     <div class="swapInputBox" style="margin-top: 30px;">
       <div class="inputTitleBox">
         <p style="font-weight: bold;">You pay</p>
-        <div style="display: flex; flex-direction: row;" v-if="payToken.balance>0">
-          <p>{{payToken.balance}}</p>
-          <p style="margin-left: 8px; color: orange;">Max</p>
+        <div class="flex_row_center" v-if="payToken.balance>0">
+          <img class="small_img" src="../assets/images/wallet.png"></img>
+          <p style="margin-left: 4px;">{{payToken.balance}}</p>
+          <p style="margin-left: 8px; color: orange;" @click="doclickMaxFn">Max</p>
         </div>
       </div>
 
@@ -84,8 +162,7 @@ function selectSwapTokenFn(selectToken) {
           <img class="downImg" src="../assets/images/down.png"/>
         </div>
 
-        <input class="amountInput" placeholder="0">
-      
+        <input class="amountInput" placeholder="0" @input="handleSwapAmountInputFn" v-model="swapObject.fromTokenAmount">
         </input>
       </div>
 
@@ -116,7 +193,7 @@ function selectSwapTokenFn(selectToken) {
 
     <p class="rateShowTxt"> 1USDC = 1USDT </p>
 
-    <button class="swapButton">
+    <button :class="['swapButton',swapAvail?'availOperate':'notavailOperate']">
       Swap
     </button>
   </div>
@@ -160,10 +237,22 @@ function selectSwapTokenFn(selectToken) {
 }
 
 .titleBox {
+  position: relative;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+}
+
+.slippageShow {
+  display: block;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  background: orange;
+  border-radius: 4px;
+  margin-right: 6px;
+  padding: 0 6px;
 }
 
 .gasSetting {
@@ -171,6 +260,40 @@ function selectSwapTokenFn(selectToken) {
   height: 30px;
   border-radius: 30px;
   background: white;
+}
+
+.settingBox {
+  position: absolute;
+  padding: 10px;
+  top: 40px;
+  right: 0px;
+  width: 300px;
+  background: white;
+  border-radius: 6px;
+  border-color: gray;
+  border-style: solid;
+  border-width: 1px;
+}
+
+.slipsetting {
+  display: block;
+  width: 60px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+}
+
+.slipSelected {
+  background: orange;
+}
+
+.slipUnselect {
+  background-color: #f2f2f2;
+}
+
+.slippageInput {
+  width: 50px;
+  height: 30px;
 }
 
 .swapInputBox {
@@ -260,6 +383,16 @@ function selectSwapTokenFn(selectToken) {
   text-align: center;
   font-size: 20px;
   border-width: 0px;
+}
+
+.availOperate {
+  background-color: #13227a;
+  color: white;
+}
+
+.notavailOperate {
+  background: rgb(113, 134, 228);
+  color: white;
 }
 
 .tokenSelectDialogBox {
