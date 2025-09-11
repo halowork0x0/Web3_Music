@@ -74,29 +74,34 @@ function selectSwapTokenFn(selectToken) {
     swapObject.value.fromTokenContract = selectToken.tokenContract
     dialogShow.value = false
     judgeSwapAvailableFn()
+    calSwapRateFn()
   } else if(openType.value == 2 && selectToken.tokenContract != payToken.value.tokenContract){
     receiveToken.value = selectToken
     swapObject.value.toTokenContract = selectToken.tokenContract
     dialogShow.value = false
     judgeSwapAvailableFn()
+    calSwapRateFn()
   }
 }
 
+const swapRate = ref(0)
 function calSwapRateFn() {
-
+  if (payToken.value.tokenContract && receiveToken.value.tokenContract) {
+    swapRate.value = (payToken.value.tokenValue / receiveToken.value.tokenValue).toFixed(8)
+  }
 }
 
 const swapObject = ref({
   fromTokenContract: '',
-  fromTokenAmount: 0,
+  fromTokenAmount: '',
   toTokenContract: '',
-  toTokenAmount: 0
+  toTokenAmount: ''
 })
 
 const swapAvail = ref(false)
 function judgeSwapAvailableFn () {
-  if (swapObject.value.fromTokenContract!='' && 
-     swapObject.value.fromTokenAmount>0 && swapObject.value.toTokenContract!=''){
+  if (swapObject.value.fromTokenContract && 
+     swapObject.value.fromTokenAmount && swapObject.value.toTokenContract){
     swapAvail.value = true
   } else {
     swapAvail.value = false
@@ -104,15 +109,30 @@ function judgeSwapAvailableFn () {
 }
 
 function handleSwapAmountInputFn(event) {
-  let inputAmount = event.target.value!=''?event.target.value:0
-  console.log('inputAmount===', inputAmount)
-  swapObject.value.fromTokenAmount = inputAmount
+  swapObject.value.fromTokenAmount = event.target.value
   judgeSwapAvailableFn()
 }
 
 function doclickMaxFn() {
   swapObject.value.fromTokenAmount = payToken.value.balance
   console.log('swapObject==', swapObject.value)
+}
+
+function doExchangeSwapTokenFn() {
+  if (payToken.value.tokenContract || receiveToken.value.tokenContract) {
+    let midObj = receiveToken.value
+    receiveToken.value = payToken.value
+    payToken.value = midObj
+
+    swapObject.value = {
+      fromTokenContract: payToken.value.tokenContract,
+      fromTokenAmount: '',
+      toTokenContract: receiveToken.value.tokenContract,
+      toTokenAmount: ''
+    }
+
+    judgeSwapAvailableFn()
+  }
 }
 </script>
 
@@ -169,7 +189,7 @@ function doclickMaxFn() {
       <p class="swapTotalValueTxt" v-if="payTokenValue>0">${{payTokenValue}}</p>
     </div>
 
-    <div class="changeBox">
+    <div class="changeBox" @click="doExchangeSwapTokenFn">
       <img class="exchangeImg" src="../assets/images/exchange.png" />
     </div>
 
@@ -191,7 +211,7 @@ function doclickMaxFn() {
       <p class="swapTotalValueTxt" v-if="receiveTokenValue>0">${{receiveTokenValue}}</p>
     </div>
 
-    <p class="rateShowTxt"> 1USDC = 1USDT </p>
+    <p class="rateShowTxt" v-if="swapRate!=0"> 1 {{payToken.tokenName}} = {{swapRate}} {{receiveToken.tokenName}} </p>
 
     <button :class="['swapButton',swapAvail?'availOperate':'notavailOperate']">
       Swap
@@ -387,12 +407,10 @@ function doclickMaxFn() {
 
 .availOperate {
   background-color: #13227a;
-  color: white;
 }
 
 .notavailOperate {
   background: rgb(113, 134, 228);
-  color: white;
 }
 
 .tokenSelectDialogBox {

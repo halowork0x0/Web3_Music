@@ -6,10 +6,21 @@ const dialogType_to = 2
 const dialogType_token = 3
 const dialog_type = ref(0)
 
-let chainAry = ['Etherum','Sepolia','Polygon']
+let chainAry = [
+  {
+    chianId: '001',
+    chainName: 'Etherum'
+  },
+  {
+    chianId: '002',
+    chainName: 'Sepolia'
+  },
+  {
+    chianId: '003',
+    chainName: 'Polygon'
+  },
+]
 const showChainAry = ref(chainAry)
-let tokenAry = ['USDC','USDT','ETH']
-const showTokenAry = ref(tokenAry)
 
 function showSelectDialogFn(opentype) {
   dialog_type.value = opentype
@@ -17,7 +28,116 @@ function showSelectDialogFn(opentype) {
 }
 
 function closeSelectDialogFn() {
+  dialog_type.value = 0
   dialogShow.value = false
+}
+
+const fromChain = ref({
+  chianId: '',
+  chainName: ''
+})
+
+const toChain = ref({
+  chianId: '',
+  chainName: ''
+})
+
+function selectCrossChainFn(opentype, selectedChain) {
+  if (opentype == dialogType_from && selectedChain.chianId != toChain.value.chianId) {
+    fromChain.value = selectedChain
+    crossObj.value.fromChainId = selectedChain.chianId
+    closeSelectDialogFn()
+    judgeCrossAvailFn()
+  } else if(opentype == dialogType_to&& selectedChain.chianId != fromChain.value.chianId){
+    toChain.value = selectedChain
+    crossObj.value.toChainId = selectedChain.chianId
+    closeSelectDialogFn()
+    judgeCrossAvailFn()
+  }
+}
+
+let tokenAry = [
+  {
+    tokenContract: '001',
+    tokenName: 'USDC',
+    balance: 100
+  },
+  {
+    tokenContract: '002',
+    tokenName: 'USDT',
+    balance: 60,
+  },
+  {
+    tokenContract: '003',
+    tokenName: 'ETH',
+    balance: 2
+  }
+]
+const showTokenAry = ref(tokenAry)
+const selectedToken = ref({
+  tokenContract: '',
+  tokenName: '',
+  balance: 0
+})
+
+function selectCrossTokenFn(token) {
+  selectedToken.value = token
+  crossObj.value.tokenContract = token.tokenContract
+  closeSelectDialogFn()
+}
+
+function doclickMaxAmountFn() {
+  crossObj.value.tokenValue = selectedToken.value.balance
+  judgeCrossAvailFn()
+}
+
+const crossObj = ref({
+  fromChainId: '',
+  toChainId: '',
+  tokenContract: '',
+  tokenValue: ''
+})
+
+function handleInputAmountFn(event) {
+  crossObj.value.tokenValue = event.target.value
+  judgeCrossAvailFn()
+}
+
+const crossAvail = ref(false)
+function judgeCrossAvailFn() {
+  console.log('crossObj==', crossObj.value)
+  if (crossObj.value.fromChainId && crossObj.value.toChainId 
+   && crossObj.value.tokenContract && crossObj.value.tokenValue) {
+    crossAvail.value = true
+  }else {
+    crossAvail.value = false
+  }
+}
+
+function doCrossChainFn() {
+  console.log('crossObj===', crossObj)
+}
+
+function doExchangeCrossChainFn() {
+  if (fromChain.value.chianId || toChain.value.chianId) {
+    let midChain = toChain.value
+    toChain.value = fromChain.value
+    fromChain.value = midChain
+
+    selectedToken.value = {
+      tokenContract: '',
+      tokenName: '',
+      balance: 0
+    }
+
+    crossObj.value = {
+      fromChainId: fromChain.value.chianId,
+      toChainId: toChain.value.chianId,
+      tokenContract: '',
+      tokenValue: ''
+    }
+    judgeCrossAvailFn()
+  }
 }
 </script>
 
@@ -30,28 +150,36 @@ function closeSelectDialogFn() {
         <p style="font-weight: bold;">From</p>
 
         <div class="selectView" @click="showSelectDialogFn(dialogType_from)">
-          <p>BTC</p>
+          <p>{{fromChain.chainName}}</p>
           <img class="downImg" src="../assets/images/down.png"/>
         </div>
       </div>
 
       <div class="tokenSelectInputBox">
-        <p style="font-weight: bold; margin-top: 20px;">Token</p>
+        <div class="flex_spacebetween_center" style="margin-top: 20px;">
+          <p style="font-weight: bold;">Token</p>
 
-        <div class="space_between_center">
-          <input class="amountInput" placeholder="0">
+          <div class="flex_row_center" v-if="selectedToken.balance>0">
+            <img class="small_img" src="../assets/images/wallet.png"></img>
+            <p style="margin-left: 4px;">{{selectedToken.balance}}</p>
+            <p style="margin-left: 8px; color: orange;" @click="doclickMaxAmountFn">Max</p>
+          </div>
+        </div>
+
+        <div class="space_between_center" style="margin-top: 16px;">
+          <input class="amountInput" placeholder="0" v-model="crossObj.tokenValue" @input="handleInputAmountFn">
           </input>
 
           <div class="selectView" @click="showSelectDialogFn(dialogType_token)">
-            <p>BTC</p>
+            <p>{{selectedToken.tokenName}}</p>
             <img class="downImg" src="../assets/images/down.png"/>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="changeBox">
-
+    <div class="changeBox" @click="doExchangeCrossChainFn">
+      <img class="exchangeImg" src="../assets/images/arrow_down.png" />
     </div>
 
     <div class="chainItemBox">
@@ -59,13 +187,13 @@ function closeSelectDialogFn() {
         <p style="font-weight: bold;">To</p>
 
         <div class="selectView" @click="showSelectDialogFn(dialogType_to)">
-          <p>BTC</p>
+          <p>{{toChain.chainName}}</p>
           <img class="downImg" src="../assets/images/down.png"/>
         </div>
       </div>
     </div>
 
-    <button class="crossButton">
+    <button :class="['crossButton',crossAvail?'availBtn':'notAvailBtn']"  @click="doCrossChainFn">
       Cross
     </button>
   </div>
@@ -89,14 +217,15 @@ function closeSelectDialogFn() {
       </p>
 
       <div class="tokenlistBox" v-if="dialog_type!=3">
-        <div class="listItem" v-for="item in showChainAry">
-          <p>{{item}}</p>
+        <div class="listItem" v-for="item in showChainAry" @click="selectCrossChainFn(dialog_type, item)">
+          <p>{{item.chainName}}</p>
         </div>
       </div>
 
       <div class="tokenlistBox" v-if="dialog_type==3">
-        <div class="listItem" v-for="item in showTokenAry">
-          <p>{{item}}</p>
+        <div class="listItem" v-for="item in showTokenAry" @click="selectCrossTokenFn(item)">
+          <p>{{item.tokenName}}</p>
+          <p>{{item.balance}}</p>
         </div>
       </div>
     </div>
@@ -160,16 +289,30 @@ function closeSelectDialogFn() {
   margin: 10px auto;
 }
 
+.exchangeImg {
+  margin-top: 6px;
+  margin-left: 6px;
+  width: 28px;
+  height: 28px;
+}
+
 .crossButton {
   margin: 20px auto;
   width: 360px;
   height: 50px;
   border-radius: 25px;
-  background-color: #13227a;
   color: white;
   text-align: center;
   font-size: 20px;
   border-width: 0px;
+}
+
+.availBtn {
+  background-color: #13227a;
+}
+
+.notAvailBtn {
+  background: rgb(113, 134, 228);
 }
 
 .deleteBtn {
