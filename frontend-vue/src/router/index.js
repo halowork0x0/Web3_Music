@@ -4,6 +4,10 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes: [
     {
+      path: "/",
+      component: () => import("../views/SwapView.vue"),
+    },
+    {
       path: "/swap",
       component: () => import("../views/SwapView.vue"),
     },
@@ -20,7 +24,7 @@ const router = createRouter({
       component: () => import("../views/FaucetView.vue"),
     },
     {
-      path: "/musicfund/detail",
+      path: "/musicfund/detail/:id",
       name: 'fundDetail',
       component: () => import("../views/MusicFundDetail.vue"),
     },

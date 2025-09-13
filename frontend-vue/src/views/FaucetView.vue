@@ -14,7 +14,7 @@ function requestTestToken() {
     <p style="display: block;">you can claim 500 WMC again every 24 hours</p>
 
     <div class="inputBox">
-      <input class="addressInput" placeholder="request evm address"></input>
+      <input class="addressInput" placeholder="enter address"></input>
       <div class="testTokenView">
         <img class="tokenIcon" src="../assets/images/icon_blue.png"></img>
         <p class="tokenTxt">WMC</p>

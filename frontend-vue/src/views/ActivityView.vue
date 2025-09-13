@@ -1,12 +1,20 @@
 <script setup>
+  import { ref } from 'vue'
   import { useRouter } from 'vue-router';
+  import { inject } from 'vue';
+  const fundAry = ref(inject('staticData_fundAry'))
+
   const router = useRouter();
-  function forwardToDetail() {
-    router.push('/musicfund/detail');
+
+  function forwardToDetail(item) {
+    console.log(item)
+    router.push({
+      name: 'fundDetail',
+      params: {id: item.id}
+    });
   };
 
   function forwardNftDetail() {
-    console.log('bbbb')
     router.push('/nft/detail');
   }
 </script>
@@ -15,35 +23,15 @@
   <div class="activityBox">
     <p class="musicTitleTxt">Music Fund</p>
     <div class="fundBox">
-      <div class="fundItem">
-        <img class="fundItemImg"></img>
-        <div class="fundItemBottom">
-          <p>completed: 80%</p>
-          <p class="detailTxt" @click="forwardToDetail">Detail ></p>
+      <div class="fundItem" v-for="item in fundAry">
+        <div class="flex_spacebetween_center">
+          <p>Song: {{item.song}}</p>
+          <p>Singer: {{item.singer}}</p>
         </div>
-      </div>
-
-      <div class="fundItem">
         <img class="fundItemImg"></img>
         <div class="fundItemBottom">
-          <p>completed: 80%</p>
-          <p class="detailTxt" @click="forwardToDetail">Detail ></p>
-        </div>
-      </div>
-
-      <div class="fundItem">
-        <img class="fundItemImg"></img>
-        <div class="fundItemBottom">
-          <p>completed: 80%</p>
-          <p class="detailTxt" @click="forwardToDetail">Detail ></p>
-        </div>
-      </div>
-
-      <div class="fundItem">
-        <img class="fundItemImg"></img>
-        <div class="fundItemBottom">
-          <p>completed: 80%</p>
-          <p class="detailTxt" @click="forwardToDetail">Detail ></p>
+          <!-- <p>completed: {{(item.nowFund/item.targetFund * 100).toFixed(2)}}%</p> -->
+          <p class="detailTxt" @click="forwardToDetail(item)">Detail ></p>
         </div>
       </div>
     </div>
@@ -135,7 +123,7 @@
   margin-top: 20px;
   margin-right: 40px;
   width: 580px;
-  height: 260px;
+  height: 310px;
   border-radius: 20px;
   padding: 20px;
   border-width: 4px;
@@ -144,11 +132,12 @@
 }
 
 .fundItemImg {
+  margin-top: 20px;
   width: 540px;
   height: 180px;
 }
 
-.fundItemBottom {
+/* .fundItemBottom {
   width: 540px;
   height: 50px;
   position: absolute;
@@ -156,6 +145,17 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  align-items: center;
+} */
+
+.fundItemBottom {
+  width: 540px;
+  height: 40px;
+  position: absolute;
+  bottom: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
   align-items: center;
 }
 
