@@ -1,8 +1,8 @@
 <script setup>
   import { ref } from 'vue'
   import { useRouter } from 'vue-router';
-  import { inject } from 'vue';
-  const fundAry = ref(inject('staticData_fundAry'))
+  import { customFundAry } from '../customdata/localdata'
+  const fundAry = ref(customFundAry)
 
   const router = useRouter();
 

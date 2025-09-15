@@ -1,12 +1,11 @@
 <script setup>
   import { ref, onUnmounted } from 'vue'
   import { useRoute } from 'vue-router';
-  import { inject } from 'vue';
+  import { customFundAry } from '../customdata/localdata'
+
   const route = useRoute();
   const fundId = route.params.id
-  const staticFundAry = inject('staticData_fundAry')
-
-  const fundObj = staticFundAry.find(item=>item.id == fundId)
+  const fundObj = customFundAry.find(item=>item.id == fundId)
   const fundDetail = ref(fundObj)
 
   const countdown = ref({

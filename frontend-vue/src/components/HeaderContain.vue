@@ -1,16 +1,40 @@
 <script setup>
 import { ref } from 'vue';
 import { RouterLink } from 'vue-router';
+import { useWeb3 } from '../composables/useWeb3.js'
+import { setTabarIndex,getTabarIndex } from '../sessiondata/accountdata.js'
 const SWAP_SELECTED = 1;
 const BRIDGE_SELECTED = 2;
 const ACTIVITY_SELECTED = 3;
 const FAUCET_SELECTED = 4;
 
-const select_type = ref(1);
+console.log('getTabarIndex====', getTabarIndex())
+const select_type = ref(getTabarIndex());
 
 function clickRouterLinkFn(selected) {
   select_type.value = selected
+  setTabarIndex(selected)
 }
+
+const showWalletOperate = ref(false)
+function doclickWalletConnectedBtnFn() {
+  showWalletOperate.value = !showWalletOperate.value
+}
+
+const {
+  account,
+  chainId,
+  isConnected,
+  isConnecting,
+  connectWallet,
+  disconnect
+} = useWeb3()
+
+console.log('account===',account)
+console.log('chainId===',chainId)
+console.log('isConnected===',isConnected)
+console.log('isConnecting===',isConnecting)
+
 </script>
 
 <template>
@@ -30,12 +54,24 @@ function clickRouterLinkFn(selected) {
         <router-link 
         :class="['rlinkNormal', select_type==FAUCET_SELECTED?'selectTagStyle':'unSelectTagStyle']" to="/faucet" @click="clickRouterLinkFn(FAUCET_SELECTED)">Faucet</router-link>
       </div>
-      <button class="connectBtn" @click="doConnectFn">connect</button>
+
+      <button class="connectBtn" v-if="isConnected" @click="doclickWalletConnectedBtnFn">{{ account.slice(0, 4) }}...{{ account.slice(-4) }}</button>
+      <button class="connectBtn" v-else @click="connectWallet">{{!isConnecting?'连接钱包':'连接中...'}}</button>
+
+      <div class="walletOperateBox" v-if="isConnected && showWalletOperate">
+        <div class="operateView" @click="disconnect">
+          disconnet
+        </div>
+        <div class="operateView">
+          profile
+        </div>
+      </div>
     </div>
 </template>
 
 <style scoped>
 .header{
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -95,5 +131,24 @@ function clickRouterLinkFn(selected) {
 .unSelectTagStyle {
   border-bottom-width: 4px;
   color: rgb(167, 157, 157);
+}
+
+.walletOperateBox {
+  position: absolute;
+  right: 0px;
+  top: 80px;
+  width: 160px;
+  height: 120px;
+  background: #f2f2f2;
+}
+
+.operateView {
+  width: 160px;
+  height: 60px;
+  line-height: 60px;
+  border-top-style: solid;
+  border-top-color: gray;
+  color: black;
+  text-align: center;
 }
 </style>
