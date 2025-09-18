@@ -1,14 +1,28 @@
 <script setup>
-import { ref } from 'vue';
+import { ref,onMounted } from 'vue';
 import { RouterLink } from 'vue-router';
-import { useWeb3 } from '../composables/useWeb3.js'
+import { checkConnection, connectWallet } from '../composables/useEther.js'
+import { 
+  getConnectedStatus, 
+  getConnectingStatus, 
+  getConnectAccount, 
+  getConnectChainId,
+  setConnectedStatus,
+  setConnectingStatus,
+  setConnectAccount
+} from '../sessiondata/accountdata.js'
 import { setTabarIndex,getTabarIndex } from '../sessiondata/accountdata.js'
+
+const isConnected = ref(getConnectedStatus())
+const isConnecting = ref(getConnectingStatus())
+const account = ref(getConnectAccount())
+const chainId = ref(getConnectChainId())
+
 const SWAP_SELECTED = 1;
 const BRIDGE_SELECTED = 2;
 const ACTIVITY_SELECTED = 3;
 const FAUCET_SELECTED = 4;
 
-console.log('getTabarIndex====', getTabarIndex())
 const select_type = ref(getTabarIndex());
 
 function clickRouterLinkFn(selected) {
@@ -17,18 +31,52 @@ function clickRouterLinkFn(selected) {
 }
 
 const showWalletOperate = ref(false)
-function doclickWalletConnectedBtnFn() {
+function showHideAccountOperateFn() {
   showWalletOperate.value = !showWalletOperate.value
 }
 
-const {
-  account,
-  chainId,
-  isConnected,
-  isConnecting,
-  connectWallet,
-  disconnect
-} = useWeb3()
+async function doConnectAccountFn() {
+  if (!getConnectingStatus()) {
+    console.log('into do connect')
+    await connectWallet()
+    if (getConnectedStatus()) {
+      isConnected.value = true
+      isConnecting.value = false
+      account.value = getConnectAccount()
+    }
+  }
+}
+
+function disconnectAccountFn() {
+  console.log('disconnectAccountFn====')
+  console.log('getConnectedStatus====111', getConnectedStatus())
+  console.log('isConnected.value====', isConnected.value)
+  if (isConnected.value) {
+    console.log('rrrrrrr====')
+
+    isConnected.value = false
+    isConnecting.value = false
+    account.value = ''
+    setConnectedStatus(false)
+    setConnectingStatus(false)
+    setConnectAccount('')
+
+    console.log('getConnectedStatus====222', getConnectedStatus())
+    console.log('getConnectingStatus====222', getConnectingStatus())
+    console.log('getConnectAccount====222', getConnectAccount())
+  }
+}
+
+onMounted(async() => {
+  console.log('onMounted=====1111')
+  await checkConnection()
+  // console.log('isConnected value===', getConnectedStatus())
+  // if (isConnected.value) {
+  //   account.value = getConnectAccount()
+  //   console.log('getConnectAccount()===', getConnectAccount())
+  // }
+  console.log('onMounted======2222')
+})
 
 console.log('account===',account)
 console.log('chainId===',chainId)
@@ -55,11 +103,11 @@ console.log('isConnecting===',isConnecting)
         :class="['rlinkNormal', select_type==FAUCET_SELECTED?'selectTagStyle':'unSelectTagStyle']" to="/faucet" @click="clickRouterLinkFn(FAUCET_SELECTED)">Faucet</router-link>
       </div>
 
-      <button class="connectBtn" v-if="isConnected" @click="doclickWalletConnectedBtnFn">{{ account.slice(0, 4) }}...{{ account.slice(-4) }}</button>
-      <button class="connectBtn" v-else @click="connectWallet">{{!isConnecting?'连接钱包':'连接中...'}}</button>
+      <button class="connectBtn" v-if="isConnected" @click="showHideAccountOperateFn">{{ account.slice(0, 4) }}...{{ account.slice(-4) }}</button>
+      <button class="connectBtn" v-else @click="doConnectAccountFn">{{!isConnecting?'连接钱包':'连接中...'}}</button>
 
       <div class="walletOperateBox" v-if="isConnected && showWalletOperate">
-        <div class="operateView" @click="disconnect">
+        <div class="operateView" @click="disconnectAccountFn">
           disconnet
         </div>
         <div class="operateView">

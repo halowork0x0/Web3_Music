@@ -6,10 +6,9 @@ export function useWeb3() {
   const chainId = ref(0)
   const isConnected = ref(false)
   const isConnecting = ref(false)
-  let provider = null
-  let signer = null
+  let provider
+  let signer
   
-
   const checkConnection = async() => {
     console.log('checkConnection==')
     if (!window.ethereum) return
@@ -65,6 +64,8 @@ export function useWeb3() {
       // 获取网络信息
       const network = await provider.getNetwork()
       chainId.value = Number(network.chainId)
+
+      console.log("balance===", provider.getBalance(account.value))
       
       return true
     } catch (error) {
@@ -89,6 +90,8 @@ export function useWeb3() {
     chainId,
     isConnected,
     isConnecting,
+    provider,
+    signer,
 
     checkConnection,
     connect,

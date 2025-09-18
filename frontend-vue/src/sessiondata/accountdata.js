@@ -7,22 +7,36 @@ export function getTabarIndex(){
     return tabarIndex? tabarIndex : 1
 }
 
-export function setWalletProvider(provider) {
-    provider_stringfy = JSON.stringify(provider)
-    window.sessionStorage.setItem('provider',provider_stringfy)
+export function setConnectedStatus(status) {
+    window.sessionStorage.setItem('isConnected', status)
 }
 
-export function getWalletProvider() {
-    let provider_stringfy= window.sessionStorage.getItem('provider')
-    return JSON.parse(provider_stringfy)
+export function getConnectedStatus() {
+    const isConnected = window.sessionStorage.getItem('isConnected')
+    return (isConnected==null||isConnected==''||isConnected=='false')? false : true
 }
 
-export function setWalletSigner(signer) {
-    signer_stringfy = JSON.stringify(signer)
-    window.sessionStorage.setItem('signer',signer_stringfy)
+export function setConnectingStatus(status) {
+    window.sessionStorage.setItem('isConnecting', status)
 }
 
-export function getWalletSigner() {
-    let singer_stringfy= window.sessionStorage.getItem('signer')
-    return JSON.parse(singer_stringfy)
+export function getConnectingStatus() {
+    const isConnecting = window.sessionStorage.getItem('isConnecting')
+    return (isConnecting==null||isConnecting==''||isConnecting=='false')? false : true
+}
+
+export function setConnectAccount(account) {
+    window.sessionStorage.setItem('account', account)
+}
+
+export function getConnectAccount() {
+    return window.sessionStorage.getItem('account')
+}
+
+export function setConnectChainId(chainid) {
+    window.sessionStorage.setItem('chainid', chainid)
+}
+
+export function getConnectChainId() {
+    return window.sessionStorage.getItem('chainid')
 }
