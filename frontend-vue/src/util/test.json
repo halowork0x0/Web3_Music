@@ -1,0 +1,25 @@
+{
+  "name": "就算世界无童话-卫兰",
+  "description": "这是一首就算世界无童话,卫兰的web3音乐", 
+  "external_url": "https://openseacreatures.io/3", 
+  "image": "https://continental-jade-wildcat.myfilebase.com/ipfs/QmNUWTZRmDKgDHje7NhLztQBaSwfrGNqZW7d9xH2Yq4ocM", 
+  "animation_url": "https://continental-jade-wildcat.myfilebase.com/ipfs/QmTeq5xerNFHCQEZygcc13t9joR61d7F4b3ZHsdXbw8c1t",
+  "attributes": [
+    {
+      "trait_type": "song", 
+      "value": "就算世界无童话"
+    },
+    {
+      "trait_type": "singer", 
+      "value": "卫兰"
+    },
+    {
+      "trait_type": "maxMint", 
+      "value": "16000"
+    },
+    {
+      "trait_type": "saleDate", 
+      "value": "2025-11-26"
+    }
+  ]
+}
