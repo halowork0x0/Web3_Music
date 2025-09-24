@@ -1,12 +1,15 @@
 <script setup>
   import { ref, onMounted } from 'vue'
   import { useRouter } from 'vue-router';
-  import { customFundAry } from '../customdata/localdata'
+  import { customFundAry,tiptype_success,tiptype_warning,tiptype_loading } from '../customdata/localdata'
   import { doGetRequest } from '../util/networkUtil'
-  import { customNftAry } from '../customdata/web3data'
+  import { nftContractAry } from '../customdata/web3data'
+  import { nftContractAbi } from '../contractABI/myNftAbi'
+  import { ethers } from 'ethers'
+  import  ShowTipView  from '../components/ShowTipView.vue'
   
   const fundAry = ref(customFundAry)
-  const nftAry = ref(customNftAry)
+  const nftAry = ref([])
 
   const router = useRouter();
 
@@ -18,14 +21,28 @@
     });
   };
 
-  function forwardNftDetail() {
-    router.push('/nft/detail');
+  function forwardNftDetail(index) {
+    router.push({
+      name: 'nftDetail',
+      params: {contract: nftContractAry(index)}
+    });
   }
 
   onMounted(async() => {
-  let requestData = await doGetRequest('https://continental-jade-wildcat.myfilebase.com/ipfs/QmeciZtq9ckvD885bRkZDp2ZrzM3UU4K21CtmQe9XveE63')
-
-  console.log('ffff====', requestData)
+    try {
+      const provider =  ethers.getDefaultProvider("https://eth-sepolia.g.alchemy.com/v2/vX2726Xs95kD20sxRSF7J")
+      let nftmetadataAry = []
+      for (let index = 0; index < nftContractAry.length; index++) {
+        let mycontract =  new ethers.Contract(nftContractAry[index], nftContractAbi, provider);
+        let metadataUrl = await mycontract.getNftMetadata();
+        let metadata = await doGetRequest(metadataUrl)
+        nftmetadataAry.push(metadata)
+      }
+        console.log('nftmetadataAry===', nftmetadataAry)
+        nftAry.value = nftmetadataAry
+    } catch(error) {
+      console.log("onMounted error==", error)
+    }
   })
 
   const playingNftIndex = ref(-1)
@@ -34,19 +51,22 @@
   const audioPlayer = ref(null);
 
   function playMusicFn(audioUrl) {
-    // audioSrc.value = audioUrl
-    // document.querySelector('#myAudio').setAttribute("src", audioUrl)
     audioPlayer.value.src = audioUrl
     audioPlayer.value.play();
-    console.log('playMusicFn====',audioUrl)
   }
 
   function pauseMusicFn() {
     audioPlayer.value.pause();
   }
 
+  function handleMusicEndFn() {
+    console.log('handleMusicEndFn====')
+    if (playingNftIndex != -1) {
+      initNftShowViewFn(playingNftIndex.value)
+    }
+  }
+
   function doPlayNftMusicFn(index, audioUrl) {
-    console.log('audioUrl===', audioUrl)
     if (index != playingNftIndex.value && playingNftIndex.value != -1) {
       initNftShowViewFn(playingNftIndex.value)
     } 
@@ -56,21 +76,18 @@
   }
 
   function doPauseNftMusicFn(index) {
-    console.log('doPauseNftMusicFn==', index)
     showNftMusicViewFn(index)
     playingNftIndex.value = -1
     pauseMusicFn()
   }
 
   function handleMouseEnterFn(index) {
-    console.log('handleMouseEnterFn==', index)
     if (index != playingNftIndex.value) {
       showNftMusicViewFn(index)
     }
   }
 
   function handleMounseLeaveFn(index) {
-    console.log('handleMounseLeaveFn==', index)
     if (index != playingNftIndex.value) {
       initNftShowViewFn(index)
     }
@@ -79,7 +96,7 @@
   function showNftMusicViewFn(index) {
     document.getElementById(`musicPlay${index}`).style.display = "block"
     document.getElementById(`musicPause${index}`).style.display = "none"
-    document.getElementById(`nft${index}`).style.background = "gray"
+    document.getElementById(`nft${index}`).style.background = "#515151"
     document.getElementById(`nftImg${index}`).classList.remove('rotate-animation')
   }
 
@@ -93,12 +110,68 @@
   function showMusicPlayingViewFn(index) {
     document.getElementById(`musicPlay${index}`).style.display = "none"
     document.getElementById(`musicPause${index}`).style.display = "block"
-    document.getElementById(`nft${index}`).style.background = "gray"
+    document.getElementById(`nft${index}`).style.background = "#515151"
     document.getElementById(`nftImg${index}`).classList.add('rotate-animation')
+  }
+
+  async function doMintNftFn(index) {
+    try {
+      console.log('bbbbb=====')
+      if (!window.ethereum) {
+        console.log("please install metamask!")
+        showTipViewFn("请先安装metamask!", tiptype_warning)
+        setTimeout(function(){
+          console.log('hhhhh====')
+          tipShow.value = false
+        },2000)
+        return
+      } 
+
+      const provider = new ethers.BrowserProvider(window.ethereum)
+      const signer = await provider.getSigner()
+      const account = await signer.getAddress()
+
+      console.log('account====', account)
+      const contract =  new ethers.Contract(nftContractAry[index], nftContractAbi, signer);
+      const mintTx = await contract.safeMint(account)
+      console.log('mintResult===', mintTx)
+      if (mintTx.hash) {
+        showTipViewFn("NFT铸造中...", tiptype_loading)
+        provider.waitForTransaction(mintTx.hash).then((receipt) => {
+        console.log("交易最终状态:", receipt);
+        if (receipt.status == 1) {
+          console.log("aaa")
+          showTipViewFn("NFT铸造成功", tiptype_success)
+        } else {
+          showTipViewFn("NFT铸造出错", tiptype_warning)
+          console.log("bbb")
+        }
+        setTimeout(function(){
+          tipShow.value = false
+        },2000)
+        }).catch((error) => {
+          tipShow.value = false
+          console.error("监听交易时出错:", error);
+        })
+      }
+    } catch(error) {
+      console.log("error===", error)
+    }
+  }
+
+  const tipShow = ref(false)
+  const tiptext = ref('')
+  const tiptype = ref('')
+
+  function showTipViewFn(text, type) {
+    tiptext.value = text
+    tiptype.value = type
+    tipShow.value = true
   }
 </script>
 
 <template>
+  <ShowTipView :tiptext="tiptext" :tiptype="tiptype" :isShow="tipShow"></ShowTipView>
   <div class="activityBox">
     <p class="musicTitleTxt">Music Fund</p>
     <div class="fundBox">
@@ -116,19 +189,23 @@
     </div>
 
     <p class="musicTitleTxt" style="margin-top: 60px;">Music NFT</p>
-    <audio ref="audioPlayer" id="myAudio" :src="audioSrc" hidden></audio>
+    <audio ref="audioPlayer" id="myAudio" :src="audioSrc" @ended="handleMusicEndFn" hidden></audio>
     <div class="nftBox">
-      <div class="nftItem" v-for="(item,index) in nftAry">
-        <div class="nftPicBox" :id="`nft${index}`" @mouseenter="handleMouseEnterFn(index)" @mouseleave="handleMounseLeaveFn(index)">
-          <img class="nftPic" :src="item.image" :id="`nftImg${index}`" @click="forwardNftDetail" />
+      <div class="nftItem" v-for="(item,index) in nftAry" @mouseenter="handleMouseEnterFn(index)" @mouseleave="handleMounseLeaveFn(index)">
+        <div class="nftPicBox" :id="`nft${index}`" >
+          <img class="nftPic" :src="item.image" :id="`nftImg${index}`" @click="forwardNftDetail(index)" />
           <img class="musicOperatePic" src="../assets/images/music_play.png" :id="`musicPlay${index}`" @click="doPlayNftMusicFn(index,item.animation_url)"/>
           <img class="musicOperatePic" src="../assets/images/music_pause.png" :id="`musicPause${index}`" @click="doPauseNftMusicFn(index)"/>
         </div>
-        <div class="priceMintBox">
+        <div class="nftNormalButtom">
           <p>{{item.name}}</p>
           <button class="mintBtn">
             mint
           </button>
+        </div>
+
+        <div class="nftFocusButtom" @click="doMintNftFn(index)">
+          mint
         </div>
       </div>
     </div>
@@ -210,13 +287,24 @@
 }
 
 .nftItem {
-  padding: 20px;
   margin-top: 20px;
   margin-right: 120px;
   display: flex;
   flex-direction: column;
-  width: 300px;
+  width: 302px;
   align-items: center;
+  border-style: solid;
+  border-width: 2px;
+  border-radius: 4px;
+  border-color: #f2f2f2;
+}
+
+.nftItem:hover .nftNormalButtom {
+  display: none;
+}
+
+.nftItem:hover .nftFocusButtom {
+  display: block;
 }
 
 .nftPicBox {
@@ -249,21 +337,26 @@
 }
 
 .nftPic {
-  width: 300px;
-  height: 300px;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 260px;
+  height: 260px;
   border-radius: 300px;
-  background: gray;
+  border-width: 2px;
+  border-color: white;
+  border-style: solid;
+  /* background: gray; */
   transform: rotate(360);
 }
 
-.priceMintBox {
-  margin-top: 10px;
+.nftNormalButtom {
   padding: 10px;
   width: 300px;
-  height: 50px;
-  border-style: solid;
-  border-width: 2px;
-  border-radius: 6px;
+  height: 54px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #f2f2f2;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -272,10 +365,27 @@
 
 .mintBtn {
   width: 68px;
-  height: 30px;
+  height: 34px;
   background: #13227a;
   font-size: 16px;
   color: white;
   border-width: 0px;
 }
+
+.nftFocusButtom {
+  display: none;
+  width: 300px;
+  height: 54px;
+  line-height: 54px;
+  text-align: center;
+  color: white;
+  font-size: 18px;
+  background: #13227a;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  border-top-width: 1px;
+  border-top-color: white;
+  border-top-style: solid;
+}
+
 </style>

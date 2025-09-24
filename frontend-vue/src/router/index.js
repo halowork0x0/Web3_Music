@@ -29,7 +29,7 @@ const router = createRouter({
       component: () => import("../views/MusicFundDetail.vue"),
     },
     {
-      path: "/nft/detail",
+      path: "/nft/detail/:contract",
       name: 'nftDetail',
       component: () => import("../views/NftDetail.vue"),
     }
