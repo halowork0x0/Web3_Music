@@ -24,7 +24,7 @@
   function forwardNftDetail(index) {
     router.push({
       name: 'nftDetail',
-      params: {contract: nftContractAry(index)}
+      params: {contract: nftContractAry[index]}
     });
   }
 

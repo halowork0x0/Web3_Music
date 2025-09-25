@@ -54,13 +54,13 @@ import { tiptype_success,tiptype_warning,tiptype_loading } from '../customdata/l
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 240px;
-  padding: 20px;
-  border-radius: 4px;
+  width: 200px;
+  padding: 30px 20px;
+  border-radius: 8px;
   border-style: solid;
   border-color: #f2f2f2;
   border-width: 2px;
-  background: gray;
+  background: rgba(0, 0, 0, 0.8);
   z-index: 10000;
 }
 
@@ -72,7 +72,7 @@ import { tiptype_success,tiptype_warning,tiptype_loading } from '../customdata/l
 .tip_txt {
   margin-top: 10px;
   display: inline-block;
-  width: 200px;
+  width: 160px;
   font-size: 14px;
   color: white;
   overflow: hidden;

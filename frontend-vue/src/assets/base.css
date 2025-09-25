@@ -85,6 +85,24 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.small_bold_text {
+  font-size: 14px;
+  color: black;
+  font-weight: bold;
+}
+
+.mid_bold_text {
+  font-size: 20px;
+  color: black;
+  font-weight: bold;
+}
+
+.big_bold_text {
+  font-size: 26px;
+  color: black;
+  font-weight: bold;
+}
+
 .small_img {
   width: 16px;
   height: 16px;
@@ -118,3 +136,5 @@ body {
   flex-direction: column;
   align-items: center;
 }
+
+
