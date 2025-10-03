@@ -96,3 +96,5 @@ export const nftContractAry = [
   "0x86dfB2A89eadfD689aCb3D58C3D9142c1874A64c",
   "0x948Bc72E83f26A67c78eFd9E8121D3028769E0Cb"
 ]
+
+export const wmcTokenContract = "0x1E80Bb1bc6F0d6042a207b934cd625789a5EDEfa"

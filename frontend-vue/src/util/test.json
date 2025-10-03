@@ -1,25 +1,32 @@
-{
-  "name": "就算世界无童话-卫兰",
-  "description": "这是一首就算世界无童话,卫兰的web3音乐", 
-  "external_url": "https://openseacreatures.io/3", 
-  "image": "https://continental-jade-wildcat.myfilebase.com/ipfs/QmNUWTZRmDKgDHje7NhLztQBaSwfrGNqZW7d9xH2Yq4ocM", 
-  "animation_url": "https://continental-jade-wildcat.myfilebase.com/ipfs/QmTeq5xerNFHCQEZygcc13t9joR61d7F4b3ZHsdXbw8c1t",
-  "attributes": [
-    {
-      "trait_type": "song", 
-      "value": "就算世界无童话"
-    },
-    {
-      "trait_type": "singer", 
-      "value": "卫兰"
-    },
-    {
-      "trait_type": "maxMint", 
-      "value": "16000"
-    },
-    {
-      "trait_type": "saleDate", 
-      "value": "2025-11-26"
-    }
-  ]
-}
+[
+  {
+    "name":"月半弯-张学友",
+    "contract": "0x42f644b223846b08dffe8564568681632c907510",
+    "image_url":"https://continental-jade-wildcat.myfilebase.com/ipfs/QmRaCCT2YkAParKTR999Cud8CT8SsCSJjGu7TyUrVb198w",
+    "music_url":"https://continental-jade-wildcat.myfilebase.com/ipfs/QmWc6KSq5cDKPztncftaXYosE56qMbFPTcjRqQcScwr3F5"
+  },
+  {
+    "name":"Kong-侧田",
+    "contract": "0xb113e9f618B89Ad339C66514bF768B3d48268035",
+    "image_url":"https://continental-jade-wildcat.myfilebase.com/ipfs/QmQJ8YxarJkBSEX8rAnYXozRdaiLi4SNDsZpjt6e8xZ3GZ",
+    "music_url":"https://continental-jade-wildcat.myfilebase.com/ipfs/QmZcfeGqBWkfmUcHQZ9yv8Hg32FMupHfZjSrPzzCjLgKwu"
+  },
+  {
+    "name":"葡萄成熟时-陈奕迅",
+    "contract": "0x277B211618982e8046b6c4AAEC8758F20fa3C879",
+    "image_url":"https://continental-jade-wildcat.myfilebase.com/ipfs/QmdMiGwAeThRFDD6FuN79uDTLuDrufQUKSYy9shGaVZTA2",
+    "music_url":"https://continental-jade-wildcat.myfilebase.com/ipfs/QmZSJyczubVuC9X97mVyR1ti8tphnpbHySspmNFBqkvt9S"
+  },
+  {
+    "name":"就算世界无童话-卫兰",
+    "contract": "0x86dfB2A89eadfD689aCb3D58C3D9142c1874A64c",
+    "image_url":"https://continental-jade-wildcat.myfilebase.com/ipfs/QmNUWTZRmDKgDHje7NhLztQBaSwfrGNqZW7d9xH2Yq4ocM",
+    "music_url":"https://continental-jade-wildcat.myfilebase.com/ipfs/QmTeq5xerNFHCQEZygcc13t9joR61d7F4b3ZHsdXbw8c1t"
+  },
+  {
+    "name":"日出时让街灯安睡-李幸倪",
+    "contract": "0x948Bc72E83f26A67c78eFd9E8121D3028769E0Cb",
+    "image_url":"https://continental-jade-wildcat.myfilebase.com/ipfs/QmWKezxpBMp3mztaZdjBtauw6jXiozbuM53rDP9HthyP7V",
+    "music_url":"https://continental-jade-wildcat.myfilebase.com/ipfs/QmYh1zp4WyD9TRGfkJmDibetqJkB6aDLQVuua4xbpHBj8S"
+  }
+]

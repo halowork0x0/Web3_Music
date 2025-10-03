@@ -1,32 +1,151 @@
 <script setup>
-import { ref } from 'vue';
+  import { ref, onMounted, onUnmounted, watch} from 'vue';
+  import { wmcTokenContract } from '../customdata/web3data'
+  import { wmcTokenContractAbi } from '../contractABI/myTokenAbi'
+  import { ethers } from 'ethers'
+  import  ShowTipView  from '../components/ShowTipView.vue'
+  import { tiptype_success,tiptype_warning,tiptype_loading } from '../customdata/localdata'
 
-const hadRequest = ref(false)
-function requestTestToken() {
-  hadRequest.value = true
-}
+  const availFaucet = ref(false)
+  const cooltimeRemain = ref('')
+  const requestAccount = ref('')
+  let myInterval = null;
+  let cooltimestamp ;
+
+  onMounted(async() => {
+    try{
+      const provider = new ethers.BrowserProvider(window.ethereum)
+      const signer = await provider.getSigner()
+      const account = await signer.getAddress()
+      requestAccount.value = account
+      const tokenContract = new ethers.Contract(wmcTokenContract,wmcTokenContractAbi,signer);
+      const lastTimestampStr = (await tokenContract.getAccountLastFaucetTime(account)).toString();
+      const presentTimestampStr = Math.floor(Date.now() / 1000);
+
+      const lastTimestamp = parseInt(lastTimestampStr);
+      const presentTimestamp = parseInt(presentTimestampStr);
+
+      if (lastTimestamp == 0 || (presentTimestamp - lastTimestamp) > 60 * 60 * 24) {
+        availFaucet.value = true
+      } else {
+        cooltimestamp = 60 * 60 * 24 - (presentTimestamp - lastTimestamp);
+        availFaucet.value = false
+        startCoolTimeIntervalFn()
+      }
+    }catch(error) {
+      console.log(error)
+    }
+  })
+
+  function startCoolTimeIntervalFn() {
+    if(myInterval != null) {
+      closeIntervalFn()
+    }
+    myInterval = setInterval(function(){
+      cooltimestamp = cooltimestamp - 1;
+      let seconds = Math.floor(cooltimestamp % 60);
+      let minutes = Math.floor((cooltimestamp / 60) % 60);
+      let hours = Math.floor((cooltimestamp / 60 / 60) % 24);
+      hours = (hours < 10) ? "0" + hours : hours;
+      minutes = (minutes < 10) ? "0" + minutes : minutes;
+      seconds = (seconds < 10) ? "0" + seconds : seconds;
+      let remainTime = hours + ':' + minutes + ':' + seconds;
+      cooltimeRemain.value = remainTime;
+    }, 1000)
+  }
+
+  function closeIntervalFn() {
+    if (myInterval != null) {
+      clearInterval(myInterval)
+    }
+    myInterval = null
+  }
+
+  onUnmounted(function(){
+    closeIntervalFn();
+    console.log('onUnmounted====');
+  })
+
+  async function claimFaucetFn(){
+    try {
+      if (!window.ethereum) {
+        console.log("please install metamask!")
+        showTipViewFn("请先安装metamask!", tiptype_warning)
+        setTimeout(function(){
+          tipShow.value = false
+        },2000)
+        return
+      } 
+
+      const provider = new ethers.BrowserProvider(window.ethereum)
+      const signer = await provider.getSigner()
+      const account = await signer.getAddress()
+
+      console.log('account====', account)
+      const contract =  new ethers.Contract(wmcTokenContract, wmcTokenContractAbi, signer);
+      const faucetTx = await contract.claimFaucet()
+      console.log('mintResult===', faucetTx)
+      if (faucetTx.hash) {
+        showTipViewFn("正在领取WMC代币...", tiptype_loading)
+        provider.waitForTransaction(faucetTx.hash).then((receipt) => {
+        console.log("交易最终状态:", receipt);
+        cooltimestamp = 60 * 60 *24;
+        availFaucet.value = false
+        startCoolTimeIntervalFn();
+        if (receipt.status == 1) {
+          console.log("aaa")
+          showTipViewFn("领取代币成功", tiptype_success)
+        } else {
+          showTipViewFn("领取代币出错", tiptype_warning)
+          console.log("bbb")
+        }
+        setTimeout(function(){
+          tipShow.value = false
+        },2000)
+        }).catch((error) => {
+          tipShow.value = false
+          console.error("监听交易时出错:", error);
+        })
+      }
+    } catch(error) {
+      console.log("error===", error)
+    }
+  }
+
+  const tipShow = ref(false)
+  const tiptext = ref('')
+  const tiptype = ref('')
+
+  function showTipViewFn(text, type) {
+    tiptext.value = text
+    tiptype.value = type
+    tipShow.value = true
+  }
 </script>
 
 <template>
   <div class="faucetBox">
+    <ShowTipView :tiptext="tiptext" :tiptype="tiptype" :isShow="tipShow"></ShowTipView>
     <p style="font-size: 24px; font-weight: bold;">Faucet for WMC test token</p>
-    
-    <p style="display: block;">you can claim 500 WMC again every 24 hours</p>
+
+    <p style="display:block;margin-top:10px;">WMC token contract: 0x1E80Bb1bc6F0d6042a207b934cd625789a5EDEfa</p>
+
+    <p style="display:block; margin-top:10px;color:red;">you can claim 500 WMC again every 24 hours</p>
 
     <div class="inputBox">
-      <input class="addressInput" placeholder="enter address"></input>
+      <input class="addressInput" placeholder="request address" :value="requestAccount" disabled="true"></input>
       <div class="testTokenView">
         <img class="tokenIcon" src="../assets/images/icon_blue.png"></img>
         <p class="tokenTxt">WMC</p>
       </div>
     </div>
 
-    <div class="requestBtn" v-if="hadRequest==false" @click="requestTestToken()">
+    <div class="requestBtn" v-if="availFaucet==true" @click="claimFaucetFn()">
       Claim
     </div>
 
-    <div class="windowBtn" v-if="hadRequest==true">
-      you can request after 16:20:11
+    <div class="windowBtn" v-if="availFaucet==false">
+      you can claim after {{cooltimeRemain}}
     </div>
     
   </div>

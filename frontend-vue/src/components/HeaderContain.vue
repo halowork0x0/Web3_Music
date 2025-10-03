@@ -49,11 +49,7 @@ async function doConnectAccountFn() {
 
 function disconnectAccountFn() {
   console.log('disconnectAccountFn====')
-  console.log('getConnectedStatus====111', getConnectedStatus())
-  console.log('isConnected.value====', isConnected.value)
   if (isConnected.value) {
-    console.log('rrrrrrr====')
-
     isConnected.value = false
     isConnecting.value = false
     account.value = ''

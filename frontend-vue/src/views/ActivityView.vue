@@ -3,7 +3,6 @@
   import { useRouter } from 'vue-router';
   import { customFundAry,tiptype_success,tiptype_warning,tiptype_loading } from '../customdata/localdata'
   import { doGetRequest } from '../util/networkUtil'
-  import { nftContractAry } from '../customdata/web3data'
   import { nftContractAbi } from '../contractABI/myNftAbi'
   import { ethers } from 'ethers'
   import  ShowTipView  from '../components/ShowTipView.vue'
@@ -21,25 +20,17 @@
     });
   };
 
-  function forwardNftDetail(index) {
+  function forwardNftDetail(nftcontract) {
     router.push({
       name: 'nftDetail',
-      params: {contract: nftContractAry[index]}
+      params: {contract: nftcontract}
     });
   }
 
   onMounted(async() => {
     try {
-      const provider =  ethers.getDefaultProvider("https://eth-sepolia.g.alchemy.com/v2/vX2726Xs95kD20sxRSF7J")
-      let nftmetadataAry = []
-      for (let index = 0; index < nftContractAry.length; index++) {
-        let mycontract =  new ethers.Contract(nftContractAry[index], nftContractAbi, provider);
-        let metadataUrl = await mycontract.getNftMetadata();
-        let metadata = await doGetRequest(metadataUrl)
-        nftmetadataAry.push(metadata)
-      }
-        console.log('nftmetadataAry===', nftmetadataAry)
-        nftAry.value = nftmetadataAry
+      let nftlistreq = await doGetRequest("https://continental-jade-wildcat.myfilebase.com/ipfs/QmaWjc8Eytjg1p7p7bspBqvFeu5mmwP8Vw2KNUNy7sGpuN");
+      nftAry.value = nftlistreq;
     } catch(error) {
       console.log("onMounted error==", error)
     }
@@ -114,7 +105,7 @@
     document.getElementById(`nftImg${index}`).classList.add('rotate-animation')
   }
 
-  async function doMintNftFn(index) {
+  async function doMintNftFn(nftcontract) {
     try {
       console.log('bbbbb=====')
       if (!window.ethereum) {
@@ -132,7 +123,7 @@
       const account = await signer.getAddress()
 
       console.log('account====', account)
-      const contract =  new ethers.Contract(nftContractAry[index], nftContractAbi, signer);
+      const contract =  new ethers.Contract(nftcontract, nftContractAbi, signer);
       const mintTx = await contract.safeMint(account)
       console.log('mintResult===', mintTx)
       if (mintTx.hash) {
@@ -171,8 +162,8 @@
 </script>
 
 <template>
-  <ShowTipView :tiptext="tiptext" :tiptype="tiptype" :isShow="tipShow"></ShowTipView>
   <div class="activityBox">
+    <ShowTipView :tiptext="tiptext" :tiptype="tiptype" :isShow="tipShow"></ShowTipView>
     <p class="musicTitleTxt">Music Fund</p>
     <div class="fundBox">
       <div class="fundItem" v-for="item in fundAry">
@@ -193,8 +184,8 @@
     <div class="nftBox">
       <div class="nftItem" v-for="(item,index) in nftAry" @mouseenter="handleMouseEnterFn(index)" @mouseleave="handleMounseLeaveFn(index)">
         <div class="nftPicBox" :id="`nft${index}`" >
-          <img class="nftPic" :src="item.image" :id="`nftImg${index}`" @click="forwardNftDetail(index)" />
-          <img class="musicOperatePic" src="../assets/images/music_play.png" :id="`musicPlay${index}`" @click="doPlayNftMusicFn(index,item.animation_url)"/>
+          <img class="nftPic" :src="item.image_url" :id="`nftImg${index}`" @click="forwardNftDetail(item.contract)" />
+          <img class="musicOperatePic" src="../assets/images/music_play.png" :id="`musicPlay${index}`" @click="doPlayNftMusicFn(index,item.music_url)"/>
           <img class="musicOperatePic" src="../assets/images/music_pause.png" :id="`musicPause${index}`" @click="doPauseNftMusicFn(index)"/>
         </div>
         <div class="nftNormalButtom">
@@ -204,7 +195,7 @@
           </button>
         </div>
 
-        <div class="nftFocusButtom" @click="doMintNftFn(index)">
+        <div class="nftFocusButtom" @click="doMintNftFn(item.contract)">
           mint
         </div>
       </div>
@@ -252,17 +243,6 @@
   width: 540px;
   height: 180px;
 }
-
-/* .fundItemBottom {
-  width: 540px;
-  height: 50px;
-  position: absolute;
-  bottom: 0px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-} */
 
 .fundItemBottom {
   width: 540px;
@@ -380,12 +360,17 @@
   text-align: center;
   color: white;
   font-size: 18px;
-  background: #13227a;
+  background-color: #13227a;
   border-bottom-left-radius: 4px;
   border-bottom-right-radius: 4px;
   border-top-width: 1px;
   border-top-color: white;
   border-top-style: solid;
+  transition: background-color 0.2s ease;
+}
+
+.nftFocusButtom:active {
+  background-color: #1633d8;
 }
 
 </style>
