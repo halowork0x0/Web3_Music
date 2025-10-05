@@ -18,9 +18,9 @@ const isConnecting = ref(getConnectingStatus())
 const account = ref(getConnectAccount())
 const chainId = ref(getConnectChainId())
 
-const SWAP_SELECTED = 1;
-const BRIDGE_SELECTED = 2;
-const ACTIVITY_SELECTED = 3;
+const FUND_SELECTED = 1;
+const NFT_SELECTED = 2;
+const BRIDGE_SELECTED = 3;
 const FAUCET_SELECTED = 4;
 
 const select_type = ref(getTabarIndex());
@@ -90,11 +90,11 @@ console.log('isConnecting===',isConnecting)
       
       <div class="routerlinkBox">
         <RouterLink 
-        :class="['rlinkNormal', select_type==SWAP_SELECTED?'selectTagStyle':'unSelectTagStyle']" to="/swap" @click="clickRouterLinkFn(SWAP_SELECTED)">Swap</RouterLink>
+        :class="['rlinkNormal', select_type==FUND_SELECTED?'selectTagStyle':'unSelectTagStyle']" to="/fund" @click="clickRouterLinkFn(FUND_SELECTED)">Fund</RouterLink>
+        <router-link 
+        :class="['rlinkNormal', select_type==NFT_SELECTED?'selectTagStyle':'unSelectTagStyle']" to="/nft" @click="clickRouterLinkFn(NFT_SELECTED)">NFT</router-link>
         <router-link 
         :class="['rlinkNormal', select_type==BRIDGE_SELECTED?'selectTagStyle':'unSelectTagStyle']" to="/bridge" @click="clickRouterLinkFn(BRIDGE_SELECTED)">Bridge</router-link>
-        <router-link 
-        :class="['rlinkNormal', select_type==ACTIVITY_SELECTED?'selectTagStyle':'unSelectTagStyle']" to="/activity" @click="clickRouterLinkFn(ACTIVITY_SELECTED)">Activity</router-link>
         <router-link 
         :class="['rlinkNormal', select_type==FAUCET_SELECTED?'selectTagStyle':'unSelectTagStyle']" to="/faucet" @click="clickRouterLinkFn(FAUCET_SELECTED)">Faucet</router-link>
       </div>

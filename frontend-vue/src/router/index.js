@@ -5,15 +5,15 @@ const router = createRouter({
   routes: [
     {
       path: "/",
-      component: () => import("../views/SwapView.vue"),
+      component: () => import("../views/FundView.vue"),
     },
     {
-      path: "/swap",
-      component: () => import("../views/SwapView.vue"),
+      path: "/fund",
+      component: () => import("../views/FundView.vue"),
     },
     {
-      path: "/activity",
-      component: () => import("../views/ActivityView.vue"),
+      path: "/nft",
+      component: () => import("../views/NftView.vue"),
     },
     {
       path: "/bridge",

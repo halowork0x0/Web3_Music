@@ -1,24 +1,15 @@
 <script setup>
   import { ref, onMounted } from 'vue'
   import { useRouter } from 'vue-router';
-  import { customFundAry,tiptype_success,tiptype_warning,tiptype_loading } from '../customdata/localdata'
+  import { tiptype_success,tiptype_warning,tiptype_loading } from '../customdata/localdata'
   import { doGetRequest } from '../util/networkUtil'
   import { nftContractAbi } from '../contractABI/myNftAbi'
   import { ethers } from 'ethers'
   import  ShowTipView  from '../components/ShowTipView.vue'
   
-  const fundAry = ref(customFundAry)
   const nftAry = ref([])
 
   const router = useRouter();
-
-  function forwardToDetail(item) {
-    console.log(item)
-    router.push({
-      name: 'fundDetail',
-      params: {id: item.id}
-    });
-  };
 
   function forwardNftDetail(nftcontract) {
     router.push({
@@ -164,24 +155,8 @@
 <template>
   <div class="activityBox">
     <ShowTipView :tiptext="tiptext" :tiptype="tiptype" :isShow="tipShow"></ShowTipView>
-    <p class="musicTitleTxt">Music Fund</p>
-    <div class="fundBox">
-      <div class="fundItem" v-for="item in fundAry">
-        <div class="flex_spacebetween_center">
-          <p>Song: {{item.song}}</p>
-          <p>Singer: {{item.singer}}</p>
-        </div>
-        <img class="fundItemImg"></img>
-        <div class="fundItemBottom">
-          <!-- <p>completed: {{(item.nowFund/item.targetFund * 100).toFixed(2)}}%</p> -->
-          <p class="detailTxt" @click="forwardToDetail(item)">Detail ></p>
-        </div>
-      </div>
-    </div>
-
-    <p class="musicTitleTxt" style="margin-top: 60px;">Music NFT</p>
     <audio ref="audioPlayer" id="myAudio" :src="audioSrc" @ended="handleMusicEndFn" hidden></audio>
-    <div class="nftBox">
+    <div class="flex_row_wrap">
       <div class="nftItem" v-for="(item,index) in nftAry" @mouseenter="handleMouseEnterFn(index)" @mouseleave="handleMounseLeaveFn(index)">
         <div class="nftPicBox" :id="`nft${index}`" >
           <img class="nftPic" :src="item.image_url" :id="`nftImg${index}`" @click="forwardNftDetail(item.contract)" />
@@ -212,62 +187,8 @@
   flex-direction: column;
 }
 
-.musicTitleTxt {
-  display: block;
-  font-size: 24px;
-  color: black;
-  font-weight: bold;
-}
-
-.fundBox {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-}
-
-.fundItem {
-  position: relative;
-  margin-top: 20px;
-  margin-right: 40px;
-  width: 580px;
-  height: 310px;
-  border-radius: 20px;
-  padding: 20px;
-  border-width: 4px;
-  border-color: gray;
-  border-style: solid;
-}
-
-.fundItemImg {
-  margin-top: 20px;
-  width: 540px;
-  height: 180px;
-}
-
-.fundItemBottom {
-  width: 540px;
-  height: 40px;
-  position: absolute;
-  bottom: 10px;
-  display: flex;
-  flex-direction: row;
-  justify-content: end;
-  align-items: center;
-}
-
-.detailTxt {
-  color: #13227a;
-  font-weight: bold;
-}
-
-.nftBox {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-}
-
 .nftItem {
-  margin-top: 20px;
+  margin-bottom: 20px;
   margin-right: 120px;
   display: flex;
   flex-direction: column;

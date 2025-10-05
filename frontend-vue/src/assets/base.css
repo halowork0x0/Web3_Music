@@ -126,6 +126,12 @@ body {
   flex-direction: row;
 }
 
+.flex_row_wrap {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
 .flex_column {
   display: flex;
   flex-direction: column;
