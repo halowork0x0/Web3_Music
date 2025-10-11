@@ -98,3 +98,11 @@ export const nftContractAry = [
 ]
 
 export const wmcTokenContract = "0x1E80Bb1bc6F0d6042a207b934cd625789a5EDEfa"
+
+
+export const fundContractAry = [
+  "0x0D2EfB19263c83f268192A68B7EebBDe97F2bcC1",
+  "0x6C20b6eeF5c2c693abA505856a5FB416F68CCD2f",
+  "0x9f1ef57C2fAEFd02dAa8D0cb70B9566B906dD87D",
+  "0xc0c8C7029dEf7dEc4c5579613add4F4E596Bf024"
+]

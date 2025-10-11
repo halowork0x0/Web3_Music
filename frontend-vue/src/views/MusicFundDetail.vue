@@ -1,42 +1,250 @@
 <script setup>
-  import { ref, onUnmounted } from 'vue'
+  import { ref, onMounted, onUnmounted } from 'vue';
   import { useRoute } from 'vue-router';
-  import { customFundAry } from '../customdata/localdata'
+  import { ethers } from 'ethers';
+  import { doGetRequest } from '../util/networkUtil';
+  import { fundContractAbi } from '../contractABI/myFundAbi';
+  import  ShowTipView  from '../components/ShowTipView.vue';
+  import { tiptype_success, tiptype_warning, tiptype_loading } from '../customdata/localdata';
 
   const route = useRoute();
-  const fundId = route.params.id
-  const fundObj = customFundAry.find(item=>item.id == fundId)
-  const fundDetail = ref(fundObj)
+  const fundContract = route.params.contract;
+  const musicMetadata = ref({});
+  const fundDetail = ref({
+    createDate: '',
+    endDate: '',
+    targetFund: '',
+    presentFundETH: '',
+    presentFundUSD: '',
+    minFund: ''
+  })
 
-  const countdown = ref({
+  const showOperateBtn = ref({
+    fundBtn: false,
+    refundBtn: false,
+    getfundBtn: false,
+  })
+
+  const activityStatus = ref(0)
+
+
+  onMounted(async() => {
+    try {
+      let provider =  ethers.getDefaultProvider("https://eth-sepolia.g.alchemy.com/v2/vX2726Xs95kD20sxRSF7J")
+      let mycontract =  new ethers.Contract(fundContract, fundContractAbi, provider);
+      let metadataUrl = await mycontract.getMusicMetadata();
+      let metadata = await doGetRequest(metadataUrl)
+      musicMetadata.value = metadata;
+      let minFund = (await mycontract.minFund()).toString()/10 ** 18;
+      let targetFund = (await mycontract.targetFund()).toString()/10 ** 18;
+      let presentFundETH = ((await provider.getBalance(fundContract)).toString()/10 ** 18);
+      let presentFundUSD = ((await mycontract.showFundBalanceTotalUsd()).toString()/10 ** 18).toFixed(2);
+      let createDate = transferTimestampToDatetime((await mycontract.deployTimeStamp()).toString() * 1000);
+      let deployTimestamp = await mycontract.deployTimeStamp();
+      let windowTimestamp = await mycontract.windowTimeStamp();
+      let endDate = transferTimestampToDatetime((deployTimestamp + windowTimestamp).toString() * 1000);
+
+      judgeOperateBtn(deployTimestamp + windowTimestamp, targetFund, presentFundUSD);
+
+      fundDetail.value = {
+        createDate: createDate,
+        endDate: endDate,
+        targetFund: targetFund,
+        presentFundETH: presentFundETH,
+        presentFundUSD: presentFundUSD,
+        minFund: minFund
+      }
+    } catch(error) {
+      console.log("onMounted error==", error)
+    }
+  })
+
+  onUnmounted(function(){
+    closeIntervalFn();
+  })
+
+  function judgeOperateBtn(endDateTimestamp,targetFund,presentFundUSD) {
+    let presentTimes = new Date().getTime();
+    let endDateTimes = (endDateTimestamp.toString()) * 1000;
+
+    if (presentTimes < endDateTimes) {
+      showOperateBtn.value = {
+        fundBtn: true,
+        refundBtn: false,
+        getfundBtn: false
+      }
+      console.log("endDateTimes-presentTimes===", (endDateTimes-presentTimes)/1000);
+      startActivityTimeIntervalFn((endDateTimes-presentTimes)/1000);
+      activityStatus.value = 1;
+    } else {
+      if (targetFund > presentFundUSD) {
+        showOperateBtn.value = {
+          fundBtn: false,
+          refundBtn: false,
+          getfundBtn: true
+        }
+      } else {
+        showOperateBtn.value = {
+          fundBtn: false,
+          refundBtn: true,
+          getfundBtn: false
+        }
+      }
+      activityStatus.value = 2;
+    }
+  }
+
+  const activityCount = ref({
     days: 0,
     hours: 0,
     minutes: 0,
     seconds: 0
   })
 
-  const endDate = ref(new Date(fundObj.endDate))
-  const updateCountdown = () => {
-    const now = new Date();
-    const diff = endDate.value.getTime() - now.getTime();
- 
-    if (diff <= 0) {
-      clearInterval(intervalId.value); // 如果时间已经结束，停止计时器
-      return;
+  let myInterval = null;
+  function startActivityTimeIntervalFn(activityTimestamp) {
+    if(myInterval != null) {
+      closeIntervalFn()
     }
- 
-    countdown.value.days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    countdown.value.hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    countdown.value.minutes = Math.floor((diff / (1000 * 60)) % 60);
-    countdown.value.seconds = Math.floor((diff / 1000) % 60);
+    myInterval = setInterval(function(){
+      activityTimestamp = activityTimestamp - 1;
+      let seconds = Math.floor(activityTimestamp % 60);
+      let minutes = Math.floor((activityTimestamp / 60) % 60);
+      let hours = Math.floor((activityTimestamp / 60 / 60) % 24);
+      let days = Math.floor(activityTimestamp / (60 * 60 * 24))
 
-    console.log('countdowning===')
-  };
+      days = (days < 10) ? "0" + days : days
+      hours = (hours < 10) ? "0" + hours : hours;
+      minutes = (minutes < 10) ? "0" + minutes : minutes;
+      seconds = (seconds < 10) ? "0" + seconds : seconds;
+      activityCount.value = {
+        days: days,
+        hours: hours,
+        minutes: minutes,
+        seconds: seconds
+      }
+    }, 1000)
+  }
 
-  const intervalId = ref(setInterval(updateCountdown, 1000));
-  onUnmounted(() => {
-    clearInterval(intervalId.value); // 组件销毁时清除计时器
-  });
+  function closeIntervalFn() {
+    if (myInterval != null) {
+      clearInterval(myInterval)
+    }
+    myInterval = null
+  }
+
+  async function doGetFundFn() {
+     try {
+      console.log('bbbbb=====')
+      if (!window.ethereum) {
+        console.log("please install metamask!")
+        showTipViewFn("请先安装metamask!", tiptype_warning)
+        setTimeout(function(){
+          console.log('hhhhh====')
+          tipShow.value = false
+        },2000)
+        return
+      } 
+
+      const provider = new ethers.BrowserProvider(window.ethereum)
+      const signer = await provider.getSigner()
+      const account = await signer.getAddress()
+
+      console.log('account====', account)
+      if (account != "0xe2951bd1eD4269b167F602C745c31BEC198DcF49") {
+        showTipViewFn("you're no owner!", tiptype_warning);
+        setTimeout(function(){
+          closeTipViewFn();
+        },2000)
+      } else {
+        const contract =  new ethers.Contract(fundContract, fundContractAbi, signer);
+        const getfundTx = await contract.getFund()
+        if (getfundTx.hash) {
+          showTipViewFn("loading...", tiptype_loading)
+          provider.waitForTransaction(getfundTx.hash).then((receipt) => {
+          console.log("交易最终状态:", receipt);
+          if (receipt.status == 1) {
+            console.log("aaa")
+            showTipViewFn("getfund success", tiptype_success)
+          } else {
+            showTipViewFn("getfund error", tiptype_warning)
+            console.log("bbb")
+          }
+          setTimeout(function(){
+            closeTipViewFn()
+          },2000)
+          }).catch((error) => {
+            closeTipViewFn()
+            console.error("监听交易时出错:", error);
+          })
+        }
+      }
+    } catch(error) {
+      console.log("error333===", error)
+    }
+  }
+
+  async function doRefundFn() {
+     try {
+      console.log('bbbbb=====')
+      if (!window.ethereum) {
+        console.log("please install metamask!")
+        showTipViewFn("请先安装metamask!", tiptype_warning)
+        setTimeout(function(){
+          console.log('hhhhh====')
+          tipShow.value = false
+        },2000)
+        return
+      } 
+
+      const provider = new ethers.BrowserProvider(window.ethereum)
+      const signer = await provider.getSigner()
+      const account = await signer.getAddress()
+
+      console.log('account====', account)
+      const contract =  new ethers.Contract(fundContract, fundContractAbi, signer);
+      const refundTx = await contract.refund()
+      if (refundTx.hash) {
+        showTipViewFn("loading...", tiptype_loading)
+        provider.waitForTransaction(refundTx.hash).then((receipt) => {
+        console.log("交易最终状态:", receipt);
+        if (receipt.status == 1) {
+          console.log("aaa")
+          showTipViewFn("refund success", tiptype_success)
+        } else {
+          showTipViewFn("refund error", tiptype_warning)
+          console.log("bbb")
+        }
+        setTimeout(function(){
+          closeTipViewFn()
+        },2000)
+        }).catch((error) => {
+          closeTipViewFn()
+          console.error("监听交易时出错:", error);
+        })
+      }
+    } catch(error) {
+      console.log("error333===", error)
+    }    
+  }
+
+  async function refreshContractFund() {
+    let provider =  ethers.getDefaultProvider("https://eth-sepolia.g.alchemy.com/v2/vX2726Xs95kD20sxRSF7J")
+    let mycontract =  new ethers.Contract(fundContract, fundContractAbi, provider);
+    let presentFundETH = ((await provider.getBalance(fundContract)).toString()/10 ** 18);
+    let presentFundUSD = ((await mycontract.showFundBalanceTotalUsd()).toString()/10 ** 18).toFixed(2);
+    fundDetail.value.presentFundETH = presentFundETH;
+    fundDetail.value.presentFundUSD = presentFundUSD;
+  }
+
+  function transferTimestampToDatetime(timestamp) {
+    let date = new Date(timestamp);
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let hour = date.getHours();
+    return `${year}年/${month}月/${day}日 ${hour}时`;
+  }
   
   function goBackPathFn () {
     window.history.back()
@@ -52,43 +260,125 @@
     dialogShow.value = false
   }
 
-  const fundValue = ref(0)
-  const walletTokenFundAry = ref([
-    {
-      tokenContract: 'aaa',
-      tokenName: 'ETH',
-      tokenAmount: 1
-    },
-    {
-      tokenContract: 'aaa',
-      tokenName: 'USDT',
-      tokenAmount: 100
-    },
-    {
-      tokenContract: 'aaa',
-      tokenName: 'USDC',
-      tokenAmount: 40
-    },
-  ])
+  const fundAmount = ref('');
+  const fundValue = ref(0);
+  let sumTimeout = null;
+
+  function handleSwapAmountInputFn(event) {
+    let ethValue = event.target.value;
+    clearTimeout(sumTimeout);
+    sumTimeout = setTimeout(() => {
+      sumInputValueAmountFn(ethValue);
+    }, 1000);
+  }
+
+  async function sumInputValueAmountFn(ethValue) {
+    let repdata = await doGetRequest("https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd");
+    let sumUsdValue = 0
+    if (repdata) {
+      let eth_usd = repdata.ethereum.usd;
+      sumUsdValue = (eth_usd * ethValue).toFixed(2);
+    }
+    fundValue.value = sumUsdValue;
+    return sumUsdValue;
+  }
+
+  async function doClickComfirmFundFn() {
+    let showTimeout = null;
+    if (await sumInputValueAmountFn(fundAmount.value) < fundDetail.value.minFund) {
+      console.log('less');
+      showTipViewFn("please fund more amount!", tiptype_warning);
+      showTimeout = setTimeout(() => {
+        showTimeout = null;
+        closeTipViewFn();
+      }, 2000);
+    }else {
+      console.log('more');
+      doFundOperate();
+    }
+  }
+
+  async function doFundOperate() {
+    try {
+      console.log('bbbbb=====')
+      if (!window.ethereum) {
+        console.log("please install metamask!")
+        showTipViewFn("请先安装metamask!", tiptype_warning)
+        setTimeout(function(){
+          console.log('hhhhh====')
+          tipShow.value = false
+        },2000)
+        return
+      } 
+
+      showTipViewFn("loading...", tiptype_loading);
+
+      const provider = new ethers.BrowserProvider(window.ethereum)
+      const signer = await provider.getSigner()
+      const account = await signer.getAddress()
+
+      console.log('account====', account)
+      const contract =  new ethers.Contract(fundContract, fundContractAbi, signer);
+      const amountToSend = ethers.parseEther(fundAmount.value);
+      contract.fund({ value: amountToSend })
+      .then((tx) => tx.wait()) // 等待交易完成并获取交易收据
+      .then((receipt) => {
+        console.log("Receipt====", receipt);
+        console.log(`Transaction Receipt: ${JSON.stringify(receipt)}`);
+        if (receipt.status == 1) {
+          showTipViewFn("fund success", tiptype_success);
+          closeFundDialogFn();
+          refreshContractFund();
+        } else {
+          showTipViewFn("fund error", tiptype_warning);
+        }
+        setTimeout(function(){
+          closeTipViewFn();
+        },2000)
+      })
+      .catch((error) => {
+        closeTipViewFn();
+      });
+    } catch(error) {
+      console.log("error333===", error)
+    }
+  }
+
+  const tipShow = ref(false)
+  const tiptext = ref('')
+  const tiptype = ref('')
+
+  function showTipViewFn(text, type) {
+    tiptext.value = text
+    tiptype.value = type
+    tipShow.value = true
+  }
+
+  function closeTipViewFn() {
+    tipShow.value = false;
+  }
 </script>
 
 <template>
+<div>
+  <ShowTipView :tiptext="tiptext" :tiptype="tiptype" :isShow="tipShow"></ShowTipView>
   <div class="detailBox">
     <p class="goBackView" @click="goBackPathFn">< Back</p>
     <div class="detailMsgBox">
-      <div class="detailImg"></div>
+      <img class="detailImg" :src="musicMetadata.image_url"></img>
       <div class="detailTxtBox">
-        <div class="titleTimeView">
+        <div class="flex_spacebetween_center">
           <p style="font-size: 20px; color: black; font-weight: bold;">Introduce</p>
-          <p>活动倒计时:  {{countdown.days}}天-{{countdown.hours}}时:{{countdown.minutes}}分:{{countdown.seconds}}秒</p>
+          <p v-if="activityStatus==1" class="activityStatusView">活动倒计时:  {{activityCount.days}}天-{{activityCount.hours}}时:{{activityCount.minutes}}分:{{activityCount.seconds}}秒</p>
+          <p v-if="activityStatus==2" class="activityStatusView">活动已结束</p>
         </div>
         <div class="flex_row_center" style="margin-top: 12px;">
           <p class="txtLeft">歌曲: </p>
-          <p class="txtRight">{{fundDetail.song}}</p>
+          <p class="txtRight">{{musicMetadata.song}}</p>
         </div>
         <div class="flex_row_center" style="margin-top: 6px;">
           <p class="txtLeft">歌手: </p>
-          <p class="txtRight">{{fundDetail.singer}}</p>
+          <p class="txtRight">{{musicMetadata.singer}}</p>
         </div>
         <div class="flex_row_center" style="margin-top: 6px;">
           <p class="txtLeft">创建日期: </p>
@@ -104,14 +394,20 @@
         </div>
         <div class="flex_row_center" style="margin-top: 6px;">
           <p class="txtLeft">目前筹集: </p>
-          <p class="txtRight">{{fundDetail.presentFund}} USD</p>
+          <p class="txtRight">{{fundDetail.presentFundETH}} ETH (≈{{fundDetail.presentFundUSD}} USD)</p>
         </div>
         <div class="flex_row_center" style="margin-top: 6px;">
           <p class="txtLeft">最低捐筹: </p>
           <p class="txtRight">{{fundDetail.minFund}} USD</p>
         </div>
-        <button class="fundBtn" @click="showFundDialogFn">
+        <button class="operateBtn" style="background: #13227a;" v-if="showOperateBtn.fundBtn" @click="showFundDialogFn">
           Fund
+        </button>
+        <button class="operateBtn" style="background: red;" v-if="showOperateBtn.getfundBtn"  @click="doGetFundFn()">
+          getFund
+        </button>
+        <button class="operateBtn" style="background: orange;" v-if="showOperateBtn.refundBtn" @click="doRefundFn()">
+          refund
         </button>
       </div>
     </div>
@@ -140,15 +436,13 @@
         <div class="flex_row_center">
           <p style="margin-right:10px;">Token:</p>
           <select class="selectToken">
-            <option v-for="item in walletTokenFundAry">
-              {{item.tokenName}}
-            </option>
+            <option>ETH</option>
           </select>
         </div>
         
         <div class="flex_row_center">
            <p style="margin-right:10px;">Amount:</p>
-          <input class="amountInput" placeholder="0" @input="handleSwapAmountInputFn">
+          <input class="amountInput" placeholder="0" @input="handleSwapAmountInputFn" v-model="fundAmount">
           </input>
         </div>
       </div>
@@ -158,9 +452,10 @@
         <p style="color: red; margin-left: 6px;">{{fundValue}} USD</p>
       </div>
 
-      <div class="comfirmBtn">Confirm</div>
+      <div class="comfirmBtn" @click="doClickComfirmFundFn()">Confirm</div>
     </div>
   </div>
+</div>
 </template>
 
 <style scoped>
@@ -181,13 +476,7 @@
   margin-top: 40px;
   display: flex;
   flex-direction: row;
-}
-
-.titleTimeView {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 .txtLeft {
@@ -201,15 +490,15 @@
 }
 
 .detailImg {
-  width: 640px;
+  width: 500px;
   height: 300px;
+  margin-right: 50px;
   background: gray;
 }
 
 .detailTxtBox {
   position: relative;
   padding: 10px;
-  margin-left: 50px;
   width: 500px;
   height: 300px;
   border-width: 2px;
@@ -217,13 +506,19 @@
   border-color: gray;
 }
 
-.fundBtn {
+.activityStatusView {
+  display: block;
+  padding: 4px 10px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+}
+
+.operateBtn {
   position: absolute;
   bottom: 10px;
   right: 10px;
   width: 100px;
   height: 40px;
-  background: #13227a;
   color: white;
 }
 

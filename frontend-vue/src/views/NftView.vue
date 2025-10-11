@@ -10,7 +10,6 @@
   const nftAry = ref([])
 
   const router = useRouter();
-
   function forwardNftDetail(nftcontract) {
     router.push({
       name: 'nftDetail',
@@ -153,7 +152,7 @@
 </script>
 
 <template>
-  <div class="activityBox">
+  <div class="activityBox flex_column">
     <ShowTipView :tiptext="tiptext" :tiptype="tiptype" :isShow="tipShow"></ShowTipView>
     <audio ref="audioPlayer" id="myAudio" :src="audioSrc" @ended="handleMusicEndFn" hidden></audio>
     <div class="flex_row_wrap">
@@ -182,14 +181,11 @@
 .activityBox {
   width: 100%;
   height: 100%;
-  padding: 40px;
-  display: flex;
-  flex-direction: column;
 }
 
 .nftItem {
-  margin-bottom: 20px;
-  margin-right: 120px;
+  margin-left: 120px;
+  margin-top: 40px;
   display: flex;
   flex-direction: column;
   width: 302px;
@@ -247,7 +243,6 @@
   border-width: 2px;
   border-color: white;
   border-style: solid;
-  /* background: gray; */
   transform: rotate(360);
 }
 

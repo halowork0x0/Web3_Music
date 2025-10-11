@@ -24,7 +24,7 @@ const router = createRouter({
       component: () => import("../views/FaucetView.vue"),
     },
     {
-      path: "/musicfund/detail/:id",
+      path: "/musicfund/detail/:contract",
       name: 'fundDetail',
       component: () => import("../views/MusicFundDetail.vue"),
     },

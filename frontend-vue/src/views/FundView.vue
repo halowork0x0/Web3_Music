@@ -1,21 +1,37 @@
 <script setup>
   import { ref,onMounted } from 'vue';
-  import { customFundAry } from '../customdata/localdata'
-  const fundAry = ref(customFundAry)
+  import { doGetRequest } from '../util/networkUtil'
+  import { useRouter } from 'vue-router';
+
+  const fundAry = ref([])
+
+  onMounted(async() => {
+    try {
+      let fundlistreq = await doGetRequest("https://continental-jade-wildcat.myfilebase.com/ipfs/QmVsKwaNeHRGjrcAAL9NRDVWfyoadMu2vN5idWX9C3qHxG");
+      fundAry.value = fundlistreq;
+      console.log("fundlistreq===", fundlistreq);
+    } catch(error) {
+      console.log("onMounted error==", error)
+    }
+  });
+
+  const router = useRouter();
+  function forwardToDetail(fundcontract) {
+    router.push({
+      name: 'fundDetail',
+      params: {contract: fundcontract}
+    });
+  }
 </script>
 
 <template>
   <div class="activityBox">
     <div class="flex_row_wrap">
-      <div class="fundItem" v-for="item in fundAry">
-        <div class="flex_spacebetween_center">
-          <p>Song: {{item.song}}</p>
-          <p>Singer: {{item.singer}}</p>
-        </div>
-        <img class="fundItemImg"></img>
-        <div class="fundItemBottom">
-          <!-- <p>completed: {{(item.nowFund/item.targetFund * 100).toFixed(2)}}%</p> -->
-          <p class="detailTxt" @click="forwardToDetail(item)">Detail ></p>
+      <div class="fundItem flex_column" v-for="item in fundAry" >
+        <img class="fundItemImg" :src="item.image_url" @click="forwardToDetail(item.contract)"></img>
+        <div class="fundMsgView flex_spacebetween_center">
+          <p>歌曲: {{item.song}}</p>
+          <p>歌手: {{item.singer}}</p>
         </div>
       </div>
     </div>
@@ -33,32 +49,30 @@
 
 .fundItem {
   position: relative;
-  margin-bottom: 20px;
-  margin-right: 40px;
-  width: 580px;
-  height: 310px;
-  border-radius: 20px;
-  padding: 20px;
-  border-width: 4px;
-  border-color: gray;
+  margin-bottom: 40px;
+  margin-left: 80px;
+  width: 522px;
+  border-radius: 10px;
+  padding: 10px;
+  border-width: 1px;
+  border-color: lightgray;
   border-style: solid;
 }
 
-.fundItemImg {
-  margin-top: 20px;
-  width: 540px;
-  height: 180px;
-}
-
-.fundItemBottom {
-  width: 540px;
-  height: 40px;
+.fundMsgView {
   position: absolute;
   bottom: 10px;
-  display: flex;
-  flex-direction: row;
-  justify-content: end;
-  align-items: center;
+  left: 10px;
+  width: 500px;
+  height: 40px;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 0 10px;
+  color: white;
+}
+
+.fundItemImg {
+  width: 500px;
+  height: 300px;
 }
 
 .detailTxt {
