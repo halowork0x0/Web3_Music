@@ -79,6 +79,7 @@
     document.getElementById(`musicPause${index}`).style.display = "none"
     document.getElementById(`nft${index}`).style.background = "#515151"
     document.getElementById(`nftImg${index}`).classList.remove('rotate-animation')
+    document.getElementById(`nftImg${index}`).classList.add('clip_circle_img')
   }
 
   function initNftShowViewFn(index) {
@@ -86,6 +87,7 @@
     document.getElementById(`musicPause${index}`).style.display = "none"
     document.getElementById(`nft${index}`).style.background = "white"
     document.getElementById(`nftImg${index}`).classList.remove('rotate-animation')
+    document.getElementById(`nftImg${index}`).classList.remove('clip_circle_img')
   }
 
   function showMusicPlayingViewFn(index) {
@@ -93,6 +95,7 @@
     document.getElementById(`musicPause${index}`).style.display = "block"
     document.getElementById(`nft${index}`).style.background = "#515151"
     document.getElementById(`nftImg${index}`).classList.add('rotate-animation')
+    document.getElementById(`nftImg${index}`).classList.add('clip_circle_img')
   }
 
   async function doMintNftFn(nftcontract) {
@@ -233,17 +236,19 @@
   animation: rotate 3s linear infinite;
 }
 
+.clip_circle_img {
+  border-radius: 50%;
+  border-width: 2px;
+  border-color: white;
+  border-style: solid;
+}
+
 .nftPic {
   position: absolute;
   top: 20px;
   left: 20px;
   width: 260px;
   height: 260px;
-  border-radius: 300px;
-  border-width: 2px;
-  border-color: white;
-  border-style: solid;
-  transform: rotate(360);
 }
 
 .nftNormalButtom {

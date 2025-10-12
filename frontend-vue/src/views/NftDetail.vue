@@ -96,7 +96,6 @@
   function showNftMusicViewFn() {
     document.getElementById("musicPlayId").style.display = "block"
     document.getElementById("musicPauseId").style.display = "none"
-    document.getElementById("nftboxId").style.background = "#515151"
     document.getElementById("nftImgId").classList.remove('rotate-animation')
     document.getElementById("nftImgId").classList.add('clip_circle_img')
   }
@@ -104,7 +103,6 @@
   function initNftShowViewFn() {
     document.getElementById("musicPlayId").style.display = "none"
     document.getElementById("musicPauseId").style.display = "none"
-    document.getElementById("nftboxId").style.background = "white"
     document.getElementById("nftImgId").classList.remove('rotate-animation')
     document.getElementById("nftImgId").classList.remove('clip_circle_img')
   }
@@ -112,7 +110,6 @@
   function showMusicPlayingViewFn() { 
     document.getElementById("musicPlayId").style.display = "none"
     document.getElementById("musicPauseId").style.display = "block"
-    document.getElementById("nftboxId").style.background = "#515151"
     document.getElementById("nftImgId").classList.add('rotate-animation')
     document.getElementById("nftImgId").classList.add('clip_circle_img')
   }
@@ -289,10 +286,10 @@
 .musicOperatePic {
   position: absolute;
   display: none;
-  left: 129px;
-  top: 129px;
-  width: 42px;
-  height: 42px;
+  left: 125px;
+  top: 125px;
+  width: 50px;
+  height: 50px;
 }
 
 @keyframes rotate {
@@ -309,16 +306,16 @@
 }
 
 .clip_circle_img {
-  clip-path: circle(50% at center); /* 创建圆形裁剪 */
-  transform-origin: center; /* 设置旋转中心为图像中心 */
+  border-radius: 50%;
+  border-width: 2px;
+  border-color: white;
+  border-style: solid;
 }
 
 .nftImg {
   position: absolute;
-  left: 20px;
-  top: 20px;
-  width: 260px;
-  height: 260px;
+  width: 300px;
+  height: 300px;
   transform: rotate(360);
 }
 </style>
