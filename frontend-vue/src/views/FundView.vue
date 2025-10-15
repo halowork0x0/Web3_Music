@@ -25,14 +25,12 @@
 </script>
 
 <template>
-  <div class="activityBox">
-    <div class="flex_row_wrap">
-      <div class="fundItem flex_column" v-for="item in fundAry" >
-        <img class="fundItemImg" :src="item.image_url" @click="forwardToDetail(item.contract)"></img>
-        <div class="fundMsgView flex_spacebetween_center">
-          <p>歌曲: {{item.song}}</p>
-          <p>歌手: {{item.singer}}</p>
-        </div>
+  <div class="activityBox flex_row_wrap">
+    <div class="fundItem flex_column" v-for="item in fundAry" >
+      <img class="fundItemImg" :src="item.image_url" @click="forwardToDetail(item.contract)"></img>
+      <div class="fundMsgView flex_spacebetween_center">
+        <p>歌曲: {{item.song}}</p>
+        <p>歌手: {{item.singer}}</p>
       </div>
     </div>
   </div>
@@ -43,8 +41,6 @@
   width: 100%;
   height: 100%;
   padding: 40px;
-  display: flex;
-  flex-direction: column;
 }
 
 .fundItem {

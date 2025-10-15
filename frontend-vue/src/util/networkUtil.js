@@ -14,3 +14,22 @@ export async function doGetRequest(url) {
   
   return reqData
 }
+
+// export async function doGetRequestInOpensea(url) {
+//   let reqData
+//   await axios.get(url,{
+//     headers:{
+
+//     }
+//   })
+//   .then(response => {
+//     console.log('response.data:', response.data)
+//     reqData = response.data
+//   })
+//   .catch(error => {
+//     reqData = null
+//     console.error('There was an error!', error);
+//   });
+  
+//   return reqData
+// }

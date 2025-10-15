@@ -85,6 +85,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.border_bottom_solid {
+  border-bottom-color: black;
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+}
+
 .small_bold_text {
   font-size: 14px;
   color: black;

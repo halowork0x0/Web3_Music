@@ -1,6 +1,6 @@
 <script setup>
 import { ref,onMounted } from 'vue';
-import { RouterLink } from 'vue-router';
+import { RouterLink, useRouter } from 'vue-router';
 import { checkConnection, connectWallet } from '../composables/useEther.js'
 import { 
   getConnectedStatus, 
@@ -32,7 +32,19 @@ function clickRouterLinkFn(selected) {
 
 const showWalletOperate = ref(false)
 function showHideAccountOperateFn() {
-  showWalletOperate.value = !showWalletOperate.value
+  if (showWalletOperate.value) {
+    hideOperateFn();
+  }else {
+    showOperateFn();
+  }
+}
+
+function showOperateFn() {
+  showWalletOperate.value = true;
+}
+
+function hideOperateFn() {
+  showWalletOperate.value = false;
 }
 
 async function doConnectAccountFn() {
@@ -61,6 +73,17 @@ function disconnectAccountFn() {
     console.log('getConnectingStatus====222', getConnectingStatus())
     console.log('getConnectAccount====222', getConnectAccount())
   }
+
+  hideOperateFn();
+}
+
+const router = useRouter();
+function forwardToProfileFn() {
+  router.push({
+    name: 'profile',
+  });
+
+  hideOperateFn();
 }
 
 onMounted(async() => {
@@ -106,7 +129,7 @@ console.log('isConnecting===',isConnecting)
         <div class="operateView" @click="disconnectAccountFn">
           disconnet
         </div>
-        <div class="operateView">
+        <div class="operateView" @click="forwardToProfileFn">
           profile
         </div>
       </div>
@@ -184,6 +207,7 @@ console.log('isConnecting===',isConnecting)
   width: 160px;
   height: 120px;
   background: #f2f2f2;
+  z-index: 10000;
 }
 
 .operateView {

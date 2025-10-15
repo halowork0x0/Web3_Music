@@ -155,26 +155,24 @@
 </script>
 
 <template>
-  <div class="activityBox flex_column">
+  <div class="activityBox flex_row_wrap">
     <ShowTipView :tiptext="tiptext" :tiptype="tiptype" :isShow="tipShow"></ShowTipView>
     <audio ref="audioPlayer" id="myAudio" :src="audioSrc" @ended="handleMusicEndFn" hidden></audio>
-    <div class="flex_row_wrap">
-      <div class="nftItem" v-for="(item,index) in nftAry" @mouseenter="handleMouseEnterFn(index)" @mouseleave="handleMounseLeaveFn(index)">
-        <div class="nftPicBox" :id="`nft${index}`" >
-          <img class="nftPic" :src="item.image_url" :id="`nftImg${index}`" @click="forwardNftDetail(item.contract)" />
-          <img class="musicOperatePic" src="../assets/images/music_play.png" :id="`musicPlay${index}`" @click="doPlayNftMusicFn(index,item.music_url)"/>
-          <img class="musicOperatePic" src="../assets/images/music_pause.png" :id="`musicPause${index}`" @click="doPauseNftMusicFn(index)"/>
-        </div>
-        <div class="nftNormalButtom">
-          <p>{{item.name}}</p>
-          <button class="mintBtn">
-            mint
-          </button>
-        </div>
-
-        <div class="nftFocusButtom" @click="doMintNftFn(item.contract)">
+    <div class="nftItem" v-for="(item,index) in nftAry" @mouseenter="handleMouseEnterFn(index)" @mouseleave="handleMounseLeaveFn(index)">
+      <div class="nftPicBox" :id="`nft${index}`" >
+        <img class="nftPic" :src="item.image_url" :id="`nftImg${index}`" @click="forwardNftDetail(item.contract)" />
+        <img class="musicOperatePic" src="../assets/images/music_play.png" :id="`musicPlay${index}`" @click="doPlayNftMusicFn(index,item.music_url)"/>
+        <img class="musicOperatePic" src="../assets/images/music_pause.png" :id="`musicPause${index}`" @click="doPauseNftMusicFn(index)"/>
+      </div>
+      <div class="nftNormalButtom">
+        <p>{{item.name}}</p>
+        <button class="mintBtn">
           mint
-        </div>
+        </button>
+      </div>
+
+      <div class="nftFocusButtom" @click="doMintNftFn(item.contract)">
+        mint
       </div>
     </div>
   </div>
@@ -182,13 +180,14 @@
 
 <style scoped>
 .activityBox {
+  padding: 40px 0;
   width: 100%;
   height: 100%;
 }
 
 .nftItem {
   margin-left: 120px;
-  margin-top: 40px;
+  margin-bottom: 40px;
   display: flex;
   flex-direction: column;
   width: 302px;

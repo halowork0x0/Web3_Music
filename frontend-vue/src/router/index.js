@@ -32,6 +32,11 @@ const router = createRouter({
       path: "/nft/detail/:contract",
       name: 'nftDetail',
       component: () => import("../views/NftDetail.vue"),
+    },
+    {
+      path: "/profile",
+      name: 'profile',
+      component: () => import("../views/ProfileView.vue"),
     }
   ],
 });
