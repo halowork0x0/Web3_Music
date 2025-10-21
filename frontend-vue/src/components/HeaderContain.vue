@@ -20,8 +20,8 @@ const chainId = ref(getConnectChainId())
 
 const FUND_SELECTED = 1;
 const NFT_SELECTED = 2;
-const BRIDGE_SELECTED = 3;
-const FAUCET_SELECTED = 4;
+const FAUCET_SELECTED = 3;
+const PROFILE_SELECTED = 4;
 
 const select_type = ref(getTabarIndex());
 
@@ -116,10 +116,10 @@ console.log('isConnecting===',isConnecting)
         :class="['rlinkNormal', select_type==FUND_SELECTED?'selectTagStyle':'unSelectTagStyle']" to="/fund" @click="clickRouterLinkFn(FUND_SELECTED)">Fund</RouterLink>
         <router-link 
         :class="['rlinkNormal', select_type==NFT_SELECTED?'selectTagStyle':'unSelectTagStyle']" to="/nft" @click="clickRouterLinkFn(NFT_SELECTED)">NFT</router-link>
-        <router-link 
-        :class="['rlinkNormal', select_type==BRIDGE_SELECTED?'selectTagStyle':'unSelectTagStyle']" to="/bridge" @click="clickRouterLinkFn(BRIDGE_SELECTED)">Bridge</router-link>
-        <router-link 
+         <router-link 
         :class="['rlinkNormal', select_type==FAUCET_SELECTED?'selectTagStyle':'unSelectTagStyle']" to="/faucet" @click="clickRouterLinkFn(FAUCET_SELECTED)">Faucet</router-link>
+        <router-link 
+        :class="['rlinkNormal', select_type==PROFILE_SELECTED?'selectTagStyle':'unSelectTagStyle']" to="/profile" @click="clickRouterLinkFn(PROFILE_SELECTED)">Profile</router-link>
       </div>
 
       <button class="connectBtn" v-if="isConnected" @click="showHideAccountOperateFn">{{ account.slice(0, 4) }}...{{ account.slice(-4) }}</button>
@@ -129,9 +129,9 @@ console.log('isConnecting===',isConnecting)
         <div class="operateView" @click="disconnectAccountFn">
           disconnet
         </div>
-        <div class="operateView" @click="forwardToProfileFn">
+        <!-- <div class="operateView" @click="forwardToProfileFn">
           profile
-        </div>
+        </div> -->
       </div>
     </div>
 </template>
@@ -205,7 +205,7 @@ console.log('isConnecting===',isConnecting)
   right: 0px;
   top: 80px;
   width: 160px;
-  height: 120px;
+  height: 60px;
   background: #f2f2f2;
   z-index: 10000;
 }

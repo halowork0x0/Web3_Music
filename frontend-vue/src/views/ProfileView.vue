@@ -177,22 +177,28 @@
     <ShowTipView :tiptext="tiptext" :tiptype="tiptype" :isShow="tipShow"></ShowTipView>
     <div class="acTokenBox flex_column">
       <p style="text-align: center;" class="big_bold_text border_bottom_solid">Profile</p>
-      <p class="acTxt">Account: {{linkAccount.account}}</p>
+      <div style="height: 60px;" class="flex_row_center">
+        <p style="font-weight: bold;">Account: </p>
+        <p style="margin-left: 10px;">{{linkAccount.account}}</p>
+      </div>
+     
       <div class="flex_row_center">
         <div class="actokenItem rightborder flex_spacebetween_center">
           <div class="flex_row_center">
-            <p style="font-size: 16px; color: red;">ETH: </p> <p>{{linkAccount.ethValue}}</p>
+            <p style="font-size: 16px; color: red;">ETH: </p> 
+            <p style="margin-left: 10px;">{{linkAccount.ethValue}}</p>
           </div>
 
-          <button @click="showTokenSendDialogFn(1)">send</button>
+          <button class="sendBtn" @click="showTokenSendDialogFn(1)">send</button>
         </div>
 
         <div class="actokenItem flex_spacebetween_center">
           <div class="flex_row_center" style="margin-left: 10px;">
-            <p style="font-size: 16px; color: red;">WMC: </p> <p>{{linkAccount.wmcValue}}</p>
+            <p style="font-size: 16px; color: red;">WMC: </p> 
+            <p style="margin-left: 10px;">{{linkAccount.wmcValue}}</p>
           </div>
 
-          <button @click="showTokenSendDialogFn(2)">send</button>
+          <button class="sendBtn" @click="showTokenSendDialogFn(2)">send</button>
         </div>
       </div>
     </div>
@@ -256,14 +262,8 @@
   border-color: gray;
 }
 
-.acTxt {
-  display: block;
-  height: 40px;
-  line-height: 40px;
-}
-
 .actokenItem {
-  margin-bottom: 4px;
+  margin-bottom: 10px;
   padding-right: 10px;
   width: 300px;
   height: 30px;
@@ -273,6 +273,13 @@
   border-right-color: black;
   border-right-width: 1px;
   border-right-style: solid;
+}
+
+.sendBtn {
+  width: 50px;
+  height: 30px;
+  background: #13227a;
+  color: white;
 }
 
 .sendDialogBox {
