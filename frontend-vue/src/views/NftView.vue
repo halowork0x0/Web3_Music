@@ -103,7 +103,7 @@
       console.log('bbbbb=====')
       if (!window.ethereum) {
         console.log("please install metamask!")
-        showTipViewFn("请先安装metamask!", tiptype_warning)
+        showTipViewFn("请先连接钱包!", tiptype_warning)
         setTimeout(function(){
           console.log('hhhhh====')
           tipShow.value = false

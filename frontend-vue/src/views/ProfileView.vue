@@ -1,10 +1,21 @@
 <script setup>
-  import { ref, onMounted, defineAsyncComponent } from 'vue'
+  import { ref, onMounted, computed, watch, defineAsyncComponent } from 'vue'
   import { ethers } from 'ethers'
   import { wmcTokenContract } from '../customdata/web3data'
   import { wmcTokenContractAbi } from '../contractABI/myTokenAbi'
   import  ShowTipView  from '../components/ShowTipView.vue'
   import { tiptype_success,tiptype_warning,tiptype_loading } from '../customdata/localdata'
+  import { useStore } from 'vuex'
+
+  const store = useStore()
+  const hadConnected = computed(()=>store.state.hadconnect);
+
+  watch(hadConnected,(newStatus)=>{
+    if(newStatus){
+      getAccountBalanceMsgFn();
+      initLoadComponet();
+    }
+  })
 
   function goBackPathFn () {
     window.history.back()
@@ -18,8 +29,10 @@
 
   onMounted(async() => {
     try {
-      getAccountBalanceMsgFn();
-      initLoadComponet();
+      if (hadConnected.value) {
+        getAccountBalanceMsgFn();
+        initLoadComponet();
+      }
 
     } catch(error) {
       console.log("onMounted error==", error)
@@ -176,13 +189,14 @@
     <p class="goBackView" @click="goBackPathFn">< Back</p>
     <ShowTipView :tiptext="tiptext" :tiptype="tiptype" :isShow="tipShow"></ShowTipView>
     <div class="acTokenBox flex_column">
-      <p style="text-align: center;" class="big_bold_text border_bottom_solid">Profile</p>
-      <div style="height: 60px;" class="flex_row_center">
+      <p style="text-align: center;line-height: 60px;" class="big_bold_text border_bottom_solid">Profile</p>
+      <p style="line-height: 50px;" v-if="!hadConnected">Please connect wallet first</p>
+      <div style="height: 60px;" class="flex_row_center" v-if="hadConnected">
         <p style="font-weight: bold;">Account: </p>
         <p style="margin-left: 10px;">{{linkAccount.account}}</p>
       </div>
      
-      <div class="flex_row_center">
+      <div class="flex_row_center" v-if="hadConnected">
         <div class="actokenItem rightborder flex_spacebetween_center">
           <div class="flex_row_center">
             <p style="font-size: 16px; color: red;">ETH: </p> 
@@ -228,12 +242,12 @@
       </div>
     </div>
 
-    <div class="tabBox flex_row_center">
+    <div class="tabBox flex_row_center" v-if="hadConnected">
       <p :class="['tabItem', tabIndex==1?'tabSelectItem':'tabNormalItem']" @click="doChangeTabFn(1)">my NFT</p>
       <p :class="['tabItem', tabIndex==2?'tabSelectItem':'tabNormalItem']" @click="doChangeTabFn(2)">my Fund</p>
     </div>
 
-    <div class="tabContain">
+    <div class="tabContain" v-if="hadConnected">
       <component :is="currentTabComponent"></component>
     </div>
   </div>

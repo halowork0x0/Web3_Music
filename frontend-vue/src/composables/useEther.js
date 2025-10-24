@@ -17,7 +17,9 @@ export const checkConnection = async() => {
       const accounts = await window.ethereum.request({ method: 'eth_accounts' })
       console.log('accounts==', accounts)
       if (accounts.length > 0) {
-        await connect()
+        // await connect()
+        setConnectedStatus(true)
+        setConnectAccount(accounts[0])
       }
     } catch (err) {
       console.error('检查连接状态失败:', err)
@@ -66,7 +68,6 @@ export const connectWallet = async() => {
     setConnectChainId(chainId)
 
     setConnectedStatus(true)
-    console.log("balance===", provider.getBalance(account))
       
     return true
   } catch (error) {

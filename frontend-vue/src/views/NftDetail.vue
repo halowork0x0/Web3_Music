@@ -117,8 +117,7 @@
   async function doMintNftFn() {
     try {
       if (!window.ethereum) {
-        console.log("please install metamask!")
-        showTipViewFn("请先安装metamask!", tiptype_warning)
+        showTipViewFn("请先连接钱包!", tiptype_warning)
         setTimeout(function(){
           tipShow.value = false
         },2000)
@@ -129,10 +128,8 @@
       const signer = await provider.getSigner()
       const account = await signer.getAddress()
 
-      console.log('account====', account)
       const contract =  new ethers.Contract(nftcontract, nftContractAbi, signer);
       const mintTx = await contract.safeMint(account)
-      console.log('mintResult===', mintTx)
       if (mintTx.hash) {
         showTipViewFn("NFT铸造中...", tiptype_loading)
         provider.waitForTransaction(mintTx.hash).then((receipt) => {

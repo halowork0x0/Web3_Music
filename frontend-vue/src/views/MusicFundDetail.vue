@@ -26,8 +26,7 @@
   })
 
   const activityStatus = ref(0)
-
-
+   
   onMounted(async() => {
     try {
       let provider =  ethers.getDefaultProvider("https://eth-sepolia.g.alchemy.com/v2/vX2726Xs95kD20sxRSF7J")
@@ -73,7 +72,6 @@
         refundBtn: false,
         getfundBtn: false
       }
-      console.log("endDateTimes-presentTimes===", (endDateTimes-presentTimes)/1000);
       startActivityTimeIntervalFn((endDateTimes-presentTimes)/1000);
       activityStatus.value = 1;
     } else {
@@ -135,12 +133,9 @@
 
   async function doGetFundFn() {
      try {
-      console.log('bbbbb=====')
       if (!window.ethereum) {
-        console.log("please install metamask!")
-        showTipViewFn("请先安装metamask!", tiptype_warning)
+        showTipViewFn("请先连接钱包!", tiptype_warning)
         setTimeout(function(){
-          console.log('hhhhh====')
           tipShow.value = false
         },2000)
         return
@@ -186,12 +181,9 @@
 
   async function doRefundFn() {
      try {
-      console.log('bbbbb=====')
       if (!window.ethereum) {
-        console.log("please install metamask!")
-        showTipViewFn("请先安装metamask!", tiptype_warning)
+        showTipViewFn("请先连接钱包!", tiptype_warning)
         setTimeout(function(){
-          console.log('hhhhh====')
           tipShow.value = false
         },2000)
         return
@@ -201,7 +193,6 @@
       const signer = await provider.getSigner()
       const account = await signer.getAddress()
 
-      console.log('account====', account)
       const contract =  new ethers.Contract(fundContract, fundContractAbi, signer);
       const refundTx = await contract.refund()
       if (refundTx.hash) {
@@ -209,11 +200,9 @@
         provider.waitForTransaction(refundTx.hash).then((receipt) => {
         console.log("交易最终状态:", receipt);
         if (receipt.status == 1) {
-          console.log("aaa")
           showTipViewFn("refund success", tiptype_success)
         } else {
           showTipViewFn("refund error", tiptype_warning)
-          console.log("bbb")
         }
         setTimeout(function(){
           closeTipViewFn()
@@ -252,8 +241,20 @@
 
   const dialogShow = ref(false)
 
-  function showFundDialogFn() {
-    dialogShow.value = true
+  async function showFundDialogFn() {
+    try {
+      if (!window.ethereum) {
+        showTipViewFn("请先连接钱包!", tiptype_warning)
+        setTimeout(function(){
+          tipShow.value = false
+        },2000)
+        return
+      }else {
+        dialogShow.value = true
+      }
+    }catch(error) {
+      console.log("error==", error)
+    }
   }
 
   function closeFundDialogFn() {
@@ -300,10 +301,8 @@
 
   async function doFundOperate() {
     try {
-      console.log('bbbbb=====')
       if (!window.ethereum) {
-        console.log("please install metamask!")
-        showTipViewFn("请先安装metamask!", tiptype_warning)
+        showTipViewFn("请先连接钱包!", tiptype_warning)
         setTimeout(function(){
           console.log('hhhhh====')
           tipShow.value = false

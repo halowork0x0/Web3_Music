@@ -1,6 +1,6 @@
 <script setup>
 import { ref,onMounted } from 'vue';
-import { RouterLink, useRouter } from 'vue-router';
+import { RouterLink } from 'vue-router';
 import { checkConnection, connectWallet } from '../composables/useEther.js'
 import { 
   getConnectedStatus, 
@@ -12,6 +12,7 @@ import {
   setConnectAccount
 } from '../sessiondata/accountdata.js'
 import { setTabarIndex,getTabarIndex } from '../sessiondata/accountdata.js'
+import { useStore } from 'vuex';
 
 const isConnected = ref(getConnectedStatus())
 const isConnecting = ref(getConnectingStatus())
@@ -47,20 +48,21 @@ function hideOperateFn() {
   showWalletOperate.value = false;
 }
 
+const store = useStore()
 async function doConnectAccountFn() {
   if (!getConnectingStatus()) {
     console.log('into do connect')
     await connectWallet()
     if (getConnectedStatus()) {
-      isConnected.value = true
-      isConnecting.value = false
-      account.value = getConnectAccount()
+      isConnected.value = true;
+      isConnecting.value = false;
+      account.value = getConnectAccount();
+      store.commit('setWalletConnected');
     }
   }
 }
 
 function disconnectAccountFn() {
-  console.log('disconnectAccountFn====')
   if (isConnected.value) {
     isConnected.value = false
     isConnecting.value = false
@@ -68,39 +70,19 @@ function disconnectAccountFn() {
     setConnectedStatus(false)
     setConnectingStatus(false)
     setConnectAccount('')
-
-    console.log('getConnectedStatus====222', getConnectedStatus())
-    console.log('getConnectingStatus====222', getConnectingStatus())
-    console.log('getConnectAccount====222', getConnectAccount())
   }
 
   hideOperateFn();
 }
 
-const router = useRouter();
-function forwardToProfileFn() {
-  router.push({
-    name: 'profile',
-  });
-
-  hideOperateFn();
-}
-
 onMounted(async() => {
-  console.log('onMounted=====1111')
   await checkConnection()
-  // console.log('isConnected value===', getConnectedStatus())
-  // if (isConnected.value) {
-  //   account.value = getConnectAccount()
-  //   console.log('getConnectAccount()===', getConnectAccount())
-  // }
-  console.log('onMounted======2222')
+  if (getConnectedStatus()) {
+    isConnected.value = true;
+    account.value = getConnectAccount();
+    store.commit('setWalletConnected');
+  }
 })
-
-console.log('account===',account)
-console.log('chainId===',chainId)
-console.log('isConnected===',isConnected)
-console.log('isConnecting===',isConnecting)
 
 </script>
 
@@ -129,9 +111,6 @@ console.log('isConnecting===',isConnecting)
         <div class="operateView" @click="disconnectAccountFn">
           disconnet
         </div>
-        <!-- <div class="operateView" @click="forwardToProfileFn">
-          profile
-        </div> -->
       </div>
     </div>
 </template>

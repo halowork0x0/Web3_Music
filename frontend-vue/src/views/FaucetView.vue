@@ -1,10 +1,20 @@
 <script setup>
-  import { ref, onMounted, onUnmounted, watch} from 'vue';
+  import { ref, onMounted, onUnmounted, computed, watch} from 'vue';
   import { wmcTokenContract } from '../customdata/web3data'
   import { wmcTokenContractAbi } from '../contractABI/myTokenAbi'
   import { ethers } from 'ethers'
   import  ShowTipView  from '../components/ShowTipView.vue'
   import { tiptype_success,tiptype_warning,tiptype_loading } from '../customdata/localdata'
+  import { useStore } from 'vuex'
+
+  const store = useStore()
+  const hadConnected = computed(()=>store.state.hadconnect);
+
+  watch(hadConnected,(newStatus)=>{
+    if(newStatus){
+      getConnectedAddressFaucet();
+    }
+  })
 
   const availFaucet = ref(false)
   const cooltimeRemain = ref('')
@@ -13,7 +23,14 @@
   let cooltimestamp ;
 
   onMounted(async() => {
+    if (hadConnected.value) {
+      getConnectedAddressFaucet();
+    }
+  })
+
+  async function getConnectedAddressFaucet() {
     try{
+      console.log('aaaa')
       const provider = new ethers.BrowserProvider(window.ethereum)
       const signer = await provider.getSigner()
       const account = await signer.getAddress()
@@ -35,7 +52,7 @@
     }catch(error) {
       console.log(error)
     }
-  })
+  }
 
   function startCoolTimeIntervalFn() {
     if(myInterval != null) {
@@ -63,7 +80,6 @@
 
   onUnmounted(function(){
     closeIntervalFn();
-    console.log('onUnmounted====');
   })
 
   async function claimFaucetFn(){
@@ -130,7 +146,7 @@
 
     <p style="display:block;margin-top:10px;">WMC token contract: 0x1E80Bb1bc6F0d6042a207b934cd625789a5EDEfa</p>
 
-    <p style="display:block; margin-top:10px;color:red;">you can claim 500 WMC again every 24 hours</p>
+    <p style="display:block; margin-top:10px;color:red;">you could claim 500 WMC every 24 hours</p>
 
     <div class="inputBox">
       <input class="addressInput" placeholder="request address" :value="requestAccount" disabled="true"></input>
@@ -140,12 +156,16 @@
       </div>
     </div>
 
-    <div class="requestBtn" v-if="availFaucet==true" @click="claimFaucetFn()">
+    <div class="requestBtn" v-if="hadConnected&&availFaucet==true" @click="claimFaucetFn()">
       Claim
     </div>
 
-    <div class="windowBtn" v-if="availFaucet==false">
+    <div class="disableBtn" v-if="hadConnected&&availFaucet==false">
       you can claim after {{cooltimeRemain}}
+    </div>
+
+     <div class="disableBtn" v-if="hadConnected==false">
+      connect wallet first
     </div>
     
   </div>
@@ -214,7 +234,7 @@
   background: #13227a;
 }
 
-.windowBtn {
+.disableBtn {
   margin: 30px auto;
   width: 240px;
   height: 50px;
