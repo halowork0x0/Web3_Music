@@ -364,7 +364,7 @@
   <div class="detailBox">
     <p class="goBackView" @click="goBackPathFn">< Back</p>
     <div class="detailMsgBox">
-      <img class="detailImg" :src="musicMetadata.image_url"></img>
+      <img class="detailImg" v-lazy="musicMetadata.image_url"></img>
       <div class="detailTxtBox">
         <div class="flex_spacebetween_center">
           <p style="font-size: 20px; color: black; font-weight: bold;">Introduce</p>
@@ -492,7 +492,8 @@
   width: 500px;
   height: 300px;
   margin-right: 50px;
-  background: gray;
+  background-image: url('../assets/images/bg_fund.png');
+  background-size: cover;
 }
 
 .detailTxtBox {

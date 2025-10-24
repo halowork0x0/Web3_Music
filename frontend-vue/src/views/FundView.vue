@@ -27,7 +27,7 @@
 <template>
   <div class="activityBox flex_row_wrap">
     <div class="fundItem flex_column" v-for="item in fundAry" >
-      <img class="fundItemImg" :src="item.image_url" @click="forwardToDetail(item.contract)"></img>
+      <img class="fundItemImg"  v-lazy="item.image_url" @click="forwardToDetail(item.contract)"></img>
       <div class="fundMsgView flex_spacebetween_center">
         <p>歌曲: {{item.song}}</p>
         <p>歌手: {{item.singer}}</p>
@@ -69,6 +69,8 @@
 .fundItemImg {
   width: 500px;
   height: 300px;
+  background-image: url('../assets/images/bg_fund.png');
+  background-size: cover;
 }
 
 .detailTxt {

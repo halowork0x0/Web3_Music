@@ -172,7 +172,7 @@
     <div class="detailMsgBox">
       <audio ref="audioPlayer" id="myAudio" :src="audioSrc" @ended="handleMusicEndFn" hidden></audio>
       <div class="nftPicBox" id="nftboxId" @mouseenter="handleMouseEnterFn" @mouseleave="handleMounseLeaveFn">
-        <img class="nftImg" :src="nftMetadata.image" id="nftImgId"></img>
+        <img class="nftImg" v-lazy="nftMetadata.image" id="nftImgId"></img>
         <img class="musicOperatePic" src="../assets/images/music_play.png" id="musicPlayId" @click="doPlayNftMusicFn"/>
         <img class="musicOperatePic" src="../assets/images/music_pause.png" id="musicPauseId" @click="doPauseNftMusicFn"/>
       </div>
@@ -314,5 +314,7 @@
   width: 300px;
   height: 300px;
   transform: rotate(360);
+  background-image: url('../assets/images/bg_nft.png');
+  background-size: cover;
 }
 </style>

@@ -160,7 +160,7 @@
     <audio ref="audioPlayer" id="myAudio" :src="audioSrc" @ended="handleMusicEndFn" hidden></audio>
     <div class="nftItem" v-for="(item,index) in nftAry" @mouseenter="handleMouseEnterFn(index)" @mouseleave="handleMounseLeaveFn(index)">
       <div class="nftPicBox" :id="`nft${index}`" >
-        <img class="nftPic" :src="item.image_url" :id="`nftImg${index}`" @click="forwardNftDetail(item.contract)" />
+        <img class="nftPic" v-lazy="item.image_url" :id="`nftImg${index}`" @click="forwardNftDetail(item.contract)" />
         <img class="musicOperatePic" src="../assets/images/music_play.png" :id="`musicPlay${index}`" @click="doPlayNftMusicFn(index,item.music_url)"/>
         <img class="musicOperatePic" src="../assets/images/music_pause.png" :id="`musicPause${index}`" @click="doPauseNftMusicFn(index)"/>
       </div>
@@ -248,6 +248,8 @@
   left: 20px;
   width: 260px;
   height: 260px;
+  background-image: url('../assets/images/bg_nft.png');
+  background-size: cover;
 }
 
 .nftNormalButtom {
