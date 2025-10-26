@@ -6,7 +6,7 @@
   import { nftContractAbi } from '../contractABI/myNftAbi'
   import  ShowTipView  from '../components/ShowTipView.vue'
   import { tiptype_success,tiptype_warning,tiptype_loading } from '../customdata/localdata'
-
+  import { switchSepoliaChain } from '../composables/useEther';
 
   function goBackPathFn () {
     window.history.back()
@@ -21,7 +21,7 @@
 
   onMounted(async() => {
     try {
-      const provider =  ethers.getDefaultProvider("https://eth-sepolia.g.alchemy.com/v2/vX2726Xs95kD20sxRSF7J")
+      let provider =  ethers.getDefaultProvider("https://eth-sepolia.g.alchemy.com/v2/vX2726Xs95kD20sxRSF7J");
       let mycontract =  new ethers.Contract(nftcontract, nftContractAbi, provider);
       let metadataUrl = await mycontract.getNftMetadata();
       let metadata = await doGetRequest(metadataUrl)
@@ -34,15 +34,12 @@
       } else {
         remainAmountStr = totalAmountStr - mintedAmountStr
       }
-      console.log('remainAmountStr====', remainAmountStr)
-      console.log('totalAmount===',typeof(totalAmountStr))
-      console.log('mintedAmount===', typeof(mintedAmountStr))
       totalAmount.value = totalAmountStr
       mintedAmount.value = mintedAmountStr
       remainAmount.value = remainAmountStr
 
     } catch(error) {
-      console.log("onMounted error==", error)
+      console.log("error==", error)
     }
   })
 
@@ -64,7 +61,6 @@
   }
 
   function handleMusicEndFn() {
-    console.log('handleMusicEndFn====')
     if (isPlayMusic.value) {
       initNftShowViewFn(playingNftIndex.value)
       isPlayMusic.value = false
@@ -122,7 +118,9 @@
           tipShow.value = false
         },2000)
         return
-      } 
+      }
+      
+      await switchSepoliaChain();
 
       const provider = new ethers.BrowserProvider(window.ethereum)
       const signer = await provider.getSigner()
@@ -133,13 +131,10 @@
       if (mintTx.hash) {
         showTipViewFn("NFT铸造中...", tiptype_loading)
         provider.waitForTransaction(mintTx.hash).then((receipt) => {
-        console.log("交易最终状态:", receipt);
         if (receipt.status == 1) {
-          console.log("aaa")
           showTipViewFn("NFT铸造成功", tiptype_success)
         } else {
           showTipViewFn("NFT铸造出错", tiptype_warning)
-          console.log("bbb")
         }
         setTimeout(function(){
           tipShow.value = false

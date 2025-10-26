@@ -5,6 +5,7 @@
   import { fundContractAbi } from '../contractABI/myFundAbi';
 
   const myFundAry = ref([])
+  const isloading = ref(true)
 
   onMounted(async()=>{
     let fundlisReq = await doGetRequest("https://continental-jade-wildcat.myfilebase.com/ipfs/QmVsKwaNeHRGjrcAAL9NRDVWfyoadMu2vN5idWX9C3qHxG");
@@ -35,6 +36,7 @@
       }
     }
     myFundAry.value = fundAry;
+    isloading.value = false
   })
 
   function getFundActivityStatus(endDateTimestamp) {
@@ -52,7 +54,7 @@
 
 <template>
   <div class="activityBox flex_row_wrap">
-    <div class="fundItem flex_column" v-for="item in myFundAry" >
+    <div class="fundItem flex_column" v-for="item in myFundAry" v-if="isloading==false">
       <div class="flex_row_center">
         <p class="txtLeft">合约: </p>
         <p class="txtRight">{{item.fundContract}}</p>
@@ -78,6 +80,7 @@
         <p class="txtRight">{{item.fundEthValue}} ETH</p>
       </div>
     </div>
+    <p v-if="isloading==false&&myFundAry.length==0" style="margin: 0 auto;">暂无发现你的捐筹</p>
   </div>
 </template>
 

@@ -55,13 +55,15 @@
     <div class="flex_row_wrap">
       <div class="nftItem" v-for="item in myMusicNftAry">
         <div class="nftPicBox">
-          <img class="nftPic" :src="item.image_url" />
+          <img class="nftPic" v-lazy="item.image_url" />
         </div>
         <div class="nftBottom flex_spacebetween_center">
           <p>{{item.name}}</p>
           <p>#{{item.tokenId}}</p>
         </div>
       </div>
+
+      <p v-if="myMusicNftAry.length==0" style="margin: 0 auto;">暂无发现你的NFT</p>
     </div>
   </div>
 </div>
@@ -130,6 +132,8 @@
   left: 20px;
   width: 260px;
   height: 260px;
+  background-image: url('../assets/images/bg_nft.png');
+  background-size: cover;
 }
 
 .nftBottom {

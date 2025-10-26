@@ -6,6 +6,7 @@
   import { fundContractAbi } from '../contractABI/myFundAbi';
   import  ShowTipView  from '../components/ShowTipView.vue';
   import { tiptype_success, tiptype_warning, tiptype_loading } from '../customdata/localdata';
+  import { switchSepoliaChain } from '../composables/useEther'
 
   const route = useRoute();
   const fundContract = route.params.contract;
@@ -30,6 +31,7 @@
   onMounted(async() => {
     try {
       let provider =  ethers.getDefaultProvider("https://eth-sepolia.g.alchemy.com/v2/vX2726Xs95kD20sxRSF7J")
+      // let provider =  ethers.getDefaultProvider("https://rpc.sepolia.org")
       let mycontract =  new ethers.Contract(fundContract, fundContractAbi, provider);
       let metadataUrl = await mycontract.getMusicMetadata();
       let metadata = await doGetRequest(metadataUrl)
@@ -54,7 +56,7 @@
         minFund: minFund
       }
     } catch(error) {
-      console.log("onMounted error==", error)
+      console.log("error==", error)
     }
   })
 
@@ -132,20 +134,21 @@
   }
 
   async function doGetFundFn() {
-     try {
+    try {
       if (!window.ethereum) {
         showTipViewFn("请先连接钱包!", tiptype_warning)
         setTimeout(function(){
           tipShow.value = false
         },2000)
         return
-      } 
+      }
+      
+      await switchSepoliaChain(); 
 
       const provider = new ethers.BrowserProvider(window.ethereum)
       const signer = await provider.getSigner()
       const account = await signer.getAddress()
 
-      console.log('account====', account)
       if (account != "0xe2951bd1eD4269b167F602C745c31BEC198DcF49") {
         showTipViewFn("you're no owner!", tiptype_warning);
         setTimeout(function(){
@@ -157,13 +160,10 @@
         if (getfundTx.hash) {
           showTipViewFn("loading...", tiptype_loading)
           provider.waitForTransaction(getfundTx.hash).then((receipt) => {
-          console.log("交易最终状态:", receipt);
           if (receipt.status == 1) {
-            console.log("aaa")
             showTipViewFn("getfund success", tiptype_success)
           } else {
             showTipViewFn("getfund error", tiptype_warning)
-            console.log("bbb")
           }
           setTimeout(function(){
             closeTipViewFn()
@@ -175,7 +175,7 @@
         }
       }
     } catch(error) {
-      console.log("error333===", error)
+      console.log("error===", error)
     }
   }
 
@@ -188,6 +188,7 @@
         },2000)
         return
       } 
+      await switchSepoliaChain(); 
 
       const provider = new ethers.BrowserProvider(window.ethereum)
       const signer = await provider.getSigner()
@@ -198,7 +199,6 @@
       if (refundTx.hash) {
         showTipViewFn("loading...", tiptype_loading)
         provider.waitForTransaction(refundTx.hash).then((receipt) => {
-        console.log("交易最终状态:", receipt);
         if (receipt.status == 1) {
           showTipViewFn("refund success", tiptype_success)
         } else {
@@ -213,12 +213,12 @@
         })
       }
     } catch(error) {
-      console.log("error333===", error)
+      console.log("error===", error)
     }    
   }
 
   async function refreshContractFund() {
-    let provider =  ethers.getDefaultProvider("https://eth-sepolia.g.alchemy.com/v2/vX2726Xs95kD20sxRSF7J")
+    let provider =  ethers.getDefaultProvider("https://eth-sepolia.g.alchemy.com/v2/vX2726Xs95kD20sxRSF7J");
     let mycontract =  new ethers.Contract(fundContract, fundContractAbi, provider);
     let presentFundETH = ((await provider.getBalance(fundContract)).toString()/10 ** 18);
     let presentFundUSD = ((await mycontract.showFundBalanceTotalUsd()).toString()/10 ** 18).toFixed(2);
@@ -287,14 +287,12 @@
   async function doClickComfirmFundFn() {
     let showTimeout = null;
     if (await sumInputValueAmountFn(fundAmount.value) < fundDetail.value.minFund) {
-      console.log('less');
       showTipViewFn("please fund more amount!", tiptype_warning);
       showTimeout = setTimeout(() => {
         showTimeout = null;
         closeTipViewFn();
       }, 2000);
     }else {
-      console.log('more');
       doFundOperate();
     }
   }
@@ -304,11 +302,12 @@
       if (!window.ethereum) {
         showTipViewFn("请先连接钱包!", tiptype_warning)
         setTimeout(function(){
-          console.log('hhhhh====')
           tipShow.value = false
         },2000)
         return
       } 
+
+      await switchSepoliaChain(); 
 
       showTipViewFn("loading...", tiptype_loading);
 
@@ -316,14 +315,11 @@
       const signer = await provider.getSigner()
       const account = await signer.getAddress()
 
-      console.log('account====', account)
       const contract =  new ethers.Contract(fundContract, fundContractAbi, signer);
       const amountToSend = ethers.parseEther(fundAmount.value);
       contract.fund({ value: amountToSend })
       .then((tx) => tx.wait()) // 等待交易完成并获取交易收据
       .then((receipt) => {
-        console.log("Receipt====", receipt);
-        console.log(`Transaction Receipt: ${JSON.stringify(receipt)}`);
         if (receipt.status == 1) {
           showTipViewFn("fund success", tiptype_success);
           closeFundDialogFn();
@@ -339,7 +335,7 @@
         closeTipViewFn();
       });
     } catch(error) {
-      console.log("error333===", error)
+      console.log("error===", error)
     }
   }
 
@@ -402,10 +398,10 @@
         <button class="operateBtn" style="background: #13227a;" v-if="showOperateBtn.fundBtn" @click="showFundDialogFn">
           Fund
         </button>
-        <button class="operateBtn" style="background: red;" v-if="showOperateBtn.getfundBtn"  @click="doGetFundFn()">
+        <button class="operateBtn" style="background: red;" v-if="showOperateBtn.getfundBtn"  @click="doGetFundFn">
           getFund
         </button>
-        <button class="operateBtn" style="background: orange;" v-if="showOperateBtn.refundBtn" @click="doRefundFn()">
+        <button class="operateBtn" style="background: orange;" v-if="showOperateBtn.refundBtn" @click="doRefundFn">
           refund
         </button>
       </div>

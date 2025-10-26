@@ -6,6 +6,7 @@
   import  ShowTipView  from '../components/ShowTipView.vue'
   import { tiptype_success,tiptype_warning,tiptype_loading } from '../customdata/localdata'
   import { useStore } from 'vuex'
+  import { switchSepoliaChain } from '../composables/useEther'
 
   const store = useStore()
   const hadConnected = computed(()=>store.state.hadconnect);
@@ -30,7 +31,6 @@
 
   async function getConnectedAddressFaucet() {
     try{
-      console.log('aaaa')
       const provider = new ethers.BrowserProvider(window.ethereum)
       const signer = await provider.getSigner()
       const account = await signer.getAddress()
@@ -85,7 +85,6 @@
   async function claimFaucetFn(){
     try {
       if (!window.ethereum) {
-        console.log("please install metamask!")
         showTipViewFn("请先安装metamask!", tiptype_warning)
         setTimeout(function(){
           tipShow.value = false
@@ -93,27 +92,24 @@
         return
       } 
 
+      await switchSepoliaChain(); 
+
       const provider = new ethers.BrowserProvider(window.ethereum)
       const signer = await provider.getSigner()
       const account = await signer.getAddress()
 
-      console.log('account====', account)
       const contract =  new ethers.Contract(wmcTokenContract, wmcTokenContractAbi, signer);
       const faucetTx = await contract.claimFaucet()
-      console.log('mintResult===', faucetTx)
       if (faucetTx.hash) {
         showTipViewFn("正在领取WMC代币...", tiptype_loading)
         provider.waitForTransaction(faucetTx.hash).then((receipt) => {
-        console.log("交易最终状态:", receipt);
         cooltimestamp = 60 * 60 *24;
         availFaucet.value = false
         startCoolTimeIntervalFn();
         if (receipt.status == 1) {
-          console.log("aaa")
           showTipViewFn("领取代币成功", tiptype_success)
         } else {
           showTipViewFn("领取代币出错", tiptype_warning)
-          console.log("bbb")
         }
         setTimeout(function(){
           tipShow.value = false

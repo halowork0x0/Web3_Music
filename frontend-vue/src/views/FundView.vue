@@ -9,9 +9,8 @@
     try {
       let fundlistreq = await doGetRequest("https://continental-jade-wildcat.myfilebase.com/ipfs/QmVsKwaNeHRGjrcAAL9NRDVWfyoadMu2vN5idWX9C3qHxG");
       fundAry.value = fundlistreq;
-      console.log("fundlistreq===", fundlistreq);
     } catch(error) {
-      console.log("onMounted error==", error)
+      console.log("error==", error)
     }
   });
 

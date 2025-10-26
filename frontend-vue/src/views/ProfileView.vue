@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, onMounted, computed, watch, defineAsyncComponent } from 'vue'
+  import { ref, shallowRef, onMounted, computed, watch, defineAsyncComponent } from 'vue'
   import { ethers } from 'ethers'
   import { wmcTokenContract } from '../customdata/web3data'
   import { wmcTokenContractAbi } from '../contractABI/myTokenAbi'
@@ -33,9 +33,8 @@
         getAccountBalanceMsgFn();
         initLoadComponet();
       }
-
     } catch(error) {
-      console.log("onMounted error==", error)
+      console.log("error==", error)
     }
   })
 
@@ -61,7 +60,6 @@
         ethValue: showEthValue,
         wmcValue: showWmcValue
       }
-      console.log('linkAccount===', linkAccount.value)
     } catch(error) {
       console.log("error==", error)
     }
@@ -79,7 +77,7 @@
   }
   
   const tabIndex = ref(1);
-  const currentTabComponent = ref(null);
+  const currentTabComponent = shallowRef(null);
 
   function doChangeTabFn(selectTab) {
     if (selectTab != tabIndex.value) {
@@ -130,14 +128,11 @@
         if (sendTx.hash) {
           showTipViewFn("loading...", tiptype_loading)
           provider.waitForTransaction(sendTx.hash).then((receipt) => {
-          console.log("交易最终状态:", receipt);
           if (receipt.status == 1) {
-            console.log("aaa")
             closeSendDialogFn();
             showTipViewFn("success", tiptype_success)
           } else {
             showTipViewFn("error", tiptype_warning)
-            console.log("bbb")
           }
           setTimeout(function(){
             tipShow.value = false
@@ -151,7 +146,6 @@
         showTipViewFn("loading...", tiptype_loading)
         let contract = new ethers.Contract(wmcTokenContract, wmcTokenContractAbi, signer);
         let txStatus = await contract.transfer(receiverAddress,ethers.parseEther(sendAmount));
-        console.log('txStatus===', txStatus)
         if (txStatus) {
           showTipViewFn("success", tiptype_success); 
           getAccountBalanceMsgFn();
@@ -164,7 +158,7 @@
         },2000)
       }
     } catch(error) {
-      console.log("error333===", error)
+      console.log("error===", error)
       closeTipViewFn();
     }
   }

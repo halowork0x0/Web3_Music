@@ -6,6 +6,7 @@
   import { nftContractAbi } from '../contractABI/myNftAbi'
   import { ethers } from 'ethers'
   import  ShowTipView  from '../components/ShowTipView.vue'
+  import { switchSepoliaChain } from '../composables/useEther';
   
   const nftAry = ref([])
 
@@ -41,7 +42,6 @@
   }
 
   function handleMusicEndFn() {
-    console.log('handleMusicEndFn====')
     if (playingNftIndex != -1) {
       initNftShowViewFn(playingNftIndex.value)
     }
@@ -100,35 +100,28 @@
 
   async function doMintNftFn(nftcontract) {
     try {
-      console.log('bbbbb=====')
       if (!window.ethereum) {
-        console.log("please install metamask!")
         showTipViewFn("请先连接钱包!", tiptype_warning)
         setTimeout(function(){
-          console.log('hhhhh====')
           tipShow.value = false
         },2000)
         return
-      } 
+      }
+      await switchSepoliaChain(); 
 
       const provider = new ethers.BrowserProvider(window.ethereum)
       const signer = await provider.getSigner()
       const account = await signer.getAddress()
 
-      console.log('account====', account)
       const contract =  new ethers.Contract(nftcontract, nftContractAbi, signer);
       const mintTx = await contract.safeMint(account)
-      console.log('mintResult===', mintTx)
       if (mintTx.hash) {
         showTipViewFn("NFT铸造中...", tiptype_loading)
         provider.waitForTransaction(mintTx.hash).then((receipt) => {
-        console.log("交易最终状态:", receipt);
         if (receipt.status == 1) {
-          console.log("aaa")
           showTipViewFn("NFT铸造成功", tiptype_success)
         } else {
           showTipViewFn("NFT铸造出错", tiptype_warning)
-          console.log("bbb")
         }
         setTimeout(function(){
           tipShow.value = false

@@ -5,7 +5,8 @@ import {
   setConnectingStatus, 
   getConnectingStatus, 
   setConnectAccount,
-  setConnectChainId
+  setConnectChainId,
+  getConnectChainId
 } from '../sessiondata/accountdata.js'
 
 export const checkConnection = async() => {
@@ -77,4 +78,33 @@ export const connectWallet = async() => {
   } finally {
     setConnectingStatus(false)
   }
+}
+
+export const switchSepoliaChain = async() => {
+  // let indexChainId = getConnectChainId()
+  // if (indexChainId == '11155111' || indexChainId == 11155111) {
+  //   console.log("index sepolia");
+  //   return
+  // } else {
+    if (window.ethereum) {
+      console.log('switchSepoliaChain===');
+      window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: '0xaa36a7' }],
+      }).catch((switchError) => {
+        if (switchError.code === 4902) {
+          window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [
+              {
+                chainId: '0xaa36a7', // sepolia 的 chainId
+                chainName: 'Sepolia',
+                rpcUrls: ['https://eth-sepolia.g.alchemy.com/v2/vX2726Xs95kD20sxRSF7J'],
+              },
+            ],
+          });
+        }
+      });
+    }
+  // }
 }
