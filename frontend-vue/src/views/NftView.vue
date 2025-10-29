@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, onMounted } from 'vue'
+  import { ref, onMounted, onUnmounted } from 'vue'
   import { useRouter } from 'vue-router';
   import { tiptype_success,tiptype_warning,tiptype_loading } from '../customdata/localdata'
   import { doGetRequest } from '../util/networkUtil'
@@ -27,12 +27,19 @@
     }
   })
 
+  onUnmounted(()=>{
+    audioPlayer.value = null;
+  })
+
   const playingNftIndex = ref(-1)
 
   const audioSrc = ref(); // 音频文件的路径
   const audioPlayer = ref(null);
 
   function playMusicFn(audioUrl) {
+    if (audioPlayer.value) {
+      audioPlayer.value.pause();
+    }
     audioPlayer.value.src = audioUrl
     audioPlayer.value.play();
   }

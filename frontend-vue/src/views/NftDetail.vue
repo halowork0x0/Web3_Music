@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, onMounted } from 'vue'
+  import { ref, onMounted, onUnmounted } from 'vue'
   import { useRoute } from 'vue-router';
   import { ethers } from 'ethers'
   import { doGetRequest } from '../util/networkUtil'
@@ -43,6 +43,10 @@
     }
   })
 
+  onUnmounted(()=>{
+    audioPlayer.value = null;
+  })
+
   const playingNftIndex = ref(-1)
 
   const audioSrc = ref(); // 音频文件的路径
@@ -50,6 +54,9 @@
   const isPlayMusic = ref(false)
 
   function playMusicFn() {
+    if (audioPlayer.value) {
+      audioPlayer.value.pause();
+    }
     audioPlayer.value.src = nftMetadata.value.animation_url
     audioPlayer.value.play();
     isPlayMusic.value = true
@@ -161,50 +168,52 @@
 </script>
 
 <template>
-  <ShowTipView :tiptext="tiptext" :tiptype="tiptype" :isShow="tipShow"></ShowTipView>
-  <div class="detailBox">
-    <p class="goBackView" @click="goBackPathFn">< Back</p>
-    <div class="detailMsgBox">
-      <audio ref="audioPlayer" id="myAudio" :src="audioSrc" @ended="handleMusicEndFn" hidden></audio>
-      <div class="nftPicBox" id="nftboxId" @mouseenter="handleMouseEnterFn" @mouseleave="handleMounseLeaveFn">
-        <img class="nftImg" v-lazy="nftMetadata.image" id="nftImgId"></img>
-        <img class="musicOperatePic" src="../assets/images/music_play.png" id="musicPlayId" @click="doPlayNftMusicFn"/>
-        <img class="musicOperatePic" src="../assets/images/music_pause.png" id="musicPauseId" @click="doPauseNftMusicFn"/>
+  <div>
+    <ShowTipView :tiptext="tiptext" :tiptype="tiptype" :isShow="tipShow"></ShowTipView>
+    <div class="detailBox">
+      <p class="goBackView" @click="goBackPathFn">< Back</p>
+      <div class="detailMsgBox">
+        <audio ref="audioPlayer" id="myAudio" :src="audioSrc" @ended="handleMusicEndFn" hidden></audio>
+        <div class="nftPicBox" id="nftboxId" @mouseenter="handleMouseEnterFn" @mouseleave="handleMounseLeaveFn">
+          <img class="nftImg" v-lazy="nftMetadata.image" id="nftImgId"></img>
+          <img class="musicOperatePic" src="../assets/images/music_play.png" id="musicPlayId" @click="doPlayNftMusicFn"/>
+          <img class="musicOperatePic" src="../assets/images/music_pause.png" id="musicPauseId" @click="doPauseNftMusicFn"/>
+        </div>
+        <div class="nftMsgBox">
+          <p class="mid_bold_text" style="margin-bottom: 20px;">NFT Message</p>
+
+          <div class="flex_row_center" style="margin-top: 12px;" v-for="attr in nftMetadata.attributes">
+            <p class="txtLeft">{{attr.trait_type}}:</p>
+            <p class="txtRight">{{attr.value}}</p>
+          </div>
+
+          <div class="flex_row_center" style="margin-top: 12px;">
+            <p class="txtLeft">总供应量:</p>
+            <p class="txtRight">{{totalAmount=="0"?"无限":totalAmount}}</p>
+          </div>
+
+          <div class="flex_row_center" style="margin-top: 12px;">
+            <p class="txtLeft">已铸数量:</p>
+            <p class="txtRight">{{mintedAmount}}</p>
+          </div>
+
+          <div class="flex_row_center" style="margin-top: 12px;">
+            <p class="txtLeft">剩余数量:</p>
+            <p class="txtRight">{{remainAmount=="0"?"无限":remainAmount}}</p>
+          </div>
+
+          <button class="mintBtn" @click="doMintNftFn">
+            Mint
+          </button>
+        </div>
       </div>
-      <div class="nftMsgBox">
-        <p class="mid_bold_text" style="margin-bottom: 20px;">NFT Message</p>
 
-        <div class="flex_row_center" style="margin-top: 12px;" v-for="attr in nftMetadata.attributes">
-          <p class="txtLeft">{{attr.trait_type}}:</p>
-          <p class="txtRight">{{attr.value}}</p>
-        </div>
-
-        <div class="flex_row_center" style="margin-top: 12px;">
-          <p class="txtLeft">总供应量:</p>
-          <p class="txtRight">{{totalAmount=="0"?"无限":totalAmount}}</p>
-        </div>
-
-        <div class="flex_row_center" style="margin-top: 12px;">
-          <p class="txtLeft">已铸数量:</p>
-          <p class="txtRight">{{mintedAmount}}</p>
-        </div>
-
-        <div class="flex_row_center" style="margin-top: 12px;">
-          <p class="txtLeft">剩余数量:</p>
-          <p class="txtRight">{{remainAmount=="0"?"无限":remainAmount}}</p>
-        </div>
-
-        <button class="mintBtn" @click="doMintNftFn">
-          Mint
-        </button>
+      <div class="regularBox">
+        <p style="font-size: 20px; color: black; font-weight: bold;">regular</p>
+        <p style="margin-top: 12px;">1. 该活动交易为测试展示所用，没有任何经济价值</p>
+        <p style="margin-top: 6px;">2. 该NFT支持发送或多次铸造
+        </p>
       </div>
-    </div>
-
-    <div class="regularBox">
-      <p style="font-size: 20px; color: black; font-weight: bold;">regular</p>
-      <p style="margin-top: 12px;">1. 该活动交易为测试展示所用，没有任何经济价值</p>
-      <p style="margin-top: 6px;">2. 该NFT支持发送或多次铸造
-      </p>
     </div>
   </div>
 </template>
