@@ -9,7 +9,6 @@
 
   onMounted(async()=>{
     let fundlisReq = await doGetRequest("https://continental-jade-wildcat.myfilebase.com/ipfs/QmVsKwaNeHRGjrcAAL9NRDVWfyoadMu2vN5idWX9C3qHxG");
-    console.log('fundlistreq===', fundlisReq)
     const provider = new ethers.BrowserProvider(window.ethereum)
     const signer = await provider.getSigner()
     const address = await signer.getAddress()
@@ -32,7 +31,6 @@
         }
 
         fundAry.push(myfundItem);
-        console.log('myfundItem=====', myfundItem)
       }
     }
     myFundAry.value = fundAry;

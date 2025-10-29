@@ -51,7 +51,6 @@ function hideOperateFn() {
 const store = useStore()
 async function doConnectAccountFn() {
   if (!getConnectingStatus()) {
-    console.log('into do connect')
     await connectWallet()
     if (getConnectedStatus()) {
       isConnected.value = true;

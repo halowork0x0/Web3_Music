@@ -25,7 +25,6 @@ import { tiptype_success,tiptype_warning,tiptype_loading } from '../customdata/l
   const {tiptype} = toRefs(props)
 
   watch(tiptype, (newValue, oldValue)=> {
-    console.log('newValue====', newValue)
     if (newValue == tiptype_success) {
     imagePath.value = img_success
   } else if(newValue == tiptype_warning){
@@ -34,9 +33,6 @@ import { tiptype_success,tiptype_warning,tiptype_loading } from '../customdata/l
     imagePath.value = img_loading
   }
   })
-
-
-  console.log('props.tiptype====', props.tiptype)
 
 </script>
 

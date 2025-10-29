@@ -11,12 +11,8 @@ import {
 
 export const checkConnection = async() => {
     if (!window.ethereum) return
-    console.log('getConnectedStatus====111', getConnectedStatus())
-    console.log('getConnectingStatus====111', getConnectingStatus())
-
     try {
       const accounts = await window.ethereum.request({ method: 'eth_accounts' })
-      console.log('accounts==', accounts)
       if (accounts.length > 0) {
         // await connect()
         setConnectedStatus(true)
@@ -81,30 +77,23 @@ export const connectWallet = async() => {
 }
 
 export const switchSepoliaChain = async() => {
-  // let indexChainId = getConnectChainId()
-  // if (indexChainId == '11155111' || indexChainId == 11155111) {
-  //   console.log("index sepolia");
-  //   return
-  // } else {
-    if (window.ethereum) {
-      console.log('switchSepoliaChain===');
-      window.ethereum.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: '0xaa36a7' }],
-      }).catch((switchError) => {
-        if (switchError.code === 4902) {
-          window.ethereum.request({
-            method: 'wallet_addEthereumChain',
-            params: [
-              {
-                chainId: '0xaa36a7', // sepolia 的 chainId
-                chainName: 'Sepolia',
-                rpcUrls: ['https://eth-sepolia.g.alchemy.com/v2/vX2726Xs95kD20sxRSF7J'],
-              },
-            ],
-          });
-        }
-      });
-    }
-  // }
+  if (window.ethereum) {
+    window.ethereum.request({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: '0xaa36a7' }],
+    }).catch((switchError) => {
+      if (switchError.code === 4902) {
+        window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [
+            {
+              chainId: '0xaa36a7', // sepolia 的 chainId
+              chainName: 'Sepolia',
+              rpcUrls: ['https://eth-sepolia.g.alchemy.com/v2/vX2726Xs95kD20sxRSF7J'],
+            },
+          ],
+        });
+      }
+    });
+  }
 }

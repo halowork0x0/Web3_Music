@@ -5,17 +5,10 @@
   import { nftContractAbi } from '../contractABI/myNftAbi';
 
   const myMusicNftAry = ref([])
-  const hasRequest = ref(false)
+  const isloading = ref(true)
 
   onMounted(async() => {
     try {
-        console.log('aaa===');
-        if (hasRequest.value) {
-          console.log('hasRequest===', hasRequest.value)
-          return
-        }
-        console.log('bbbb====');
-        hasRequest.value = false;
         const provider = new ethers.BrowserProvider(window.ethereum)
         const signer = await provider.getSigner()
         const address = await signer.getAddress()
@@ -34,6 +27,7 @@
           }
         }
         myMusicNftAry.value = musicNftAry;
+        isloading.value = false;
     } catch(error) {
         console.log("onMounted error==", error)
     }
@@ -53,7 +47,7 @@
 <div>
   <div class="activityBox flex_column">
     <div class="flex_row_wrap">
-      <div class="nftItem" v-for="item in myMusicNftAry">
+      <div class="nftItem" v-for="item in myMusicNftAry" v-if="isloading==false">
         <div class="nftPicBox">
           <img class="nftPic" v-lazy="item.image_url" />
         </div>
@@ -63,7 +57,7 @@
         </div>
       </div>
 
-      <p v-if="myMusicNftAry.length==0" style="margin: 0 auto;">暂无发现你的NFT</p>
+      <p v-if="isloading==false&&myMusicNftAry.length==0" style="margin: 0 auto;">暂无发现你的NFT</p>
     </div>
   </div>
 </div>
