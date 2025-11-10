@@ -62,6 +62,7 @@
 
   onUnmounted(function(){
     closeIntervalFn();
+    clearTimeout(sumTimeout);
   })
 
   function judgeOperateBtn(endDateTimestamp,targetFund,presentFundUSD) {
@@ -77,17 +78,19 @@
       startActivityTimeIntervalFn((endDateTimes-presentTimes)/1000);
       activityStatus.value = 1;
     } else {
-      if (targetFund > presentFundUSD) {
-        showOperateBtn.value = {
-          fundBtn: false,
-          refundBtn: false,
-          getfundBtn: true
-        }
-      } else {
+      if (targetFund > presentFundUSD) {   //筹款未达到目标
+        console.log('11111');
         showOperateBtn.value = {
           fundBtn: false,
           refundBtn: true,
           getfundBtn: false
+        }
+      } else {                      //筹款已达到目标
+        console.log('22222');
+        showOperateBtn.value = {
+          fundBtn: false,
+          refundBtn: false,
+          getfundBtn: true
         }
       }
       activityStatus.value = 2;
@@ -128,9 +131,9 @@
 
   function closeIntervalFn() {
     if (myInterval != null) {
-      clearInterval(myInterval)
+      clearInterval(myInterval);
     }
-    myInterval = null
+    myInterval = null;
   }
 
   async function doGetFundFn() {
@@ -175,6 +178,10 @@
         }
       }
     } catch(error) {
+      showTipViewFn(error.reason, tiptype_warning)
+      setTimeout(function(){
+        closeTipViewFn()
+      },2000)
       console.log("error===", error)
     }
   }
@@ -213,6 +220,10 @@
         })
       }
     } catch(error) {
+      showTipViewFn(error.reason, tiptype_warning)
+      setTimeout(function(){
+        closeTipViewFn()
+      },2000)
       console.log("error===", error)
     }    
   }
@@ -250,7 +261,8 @@
         },2000)
         return
       }else {
-        dialogShow.value = true
+        dialogShow.value = true;
+        fundAmount.value = '';
       }
     }catch(error) {
       console.log("error==", error)
@@ -266,10 +278,11 @@
   let sumTimeout = null;
 
   function handleSwapAmountInputFn(event) {
-    let ethValue = event.target.value;
+    const inputAmount = event.target.value.replace(/[^0-9.]/g, '').replace(/^\./, '');
+    fundAmount.value = inputAmount;
     clearTimeout(sumTimeout);
     sumTimeout = setTimeout(() => {
-      sumInputValueAmountFn(ethValue);
+      sumInputValueAmountFn(inputAmount);
     }, 1000);
   }
 
@@ -460,13 +473,6 @@
   padding: 40px;
 }
 
-.goBackView {
-  width: 100px;
-  height: 40px;
-  font-weight: bold;
-  font-size: 16px;
-}
-
 .detailMsgBox {
   margin-top: 40px;
   display: flex;
@@ -488,7 +494,7 @@
   width: 500px;
   height: 300px;
   margin-right: 50px;
-  background-image: url('../assets/images/bg_fund.png');
+  background-image: url('../assets/images/bg_fund.jpg');
   background-size: cover;
 }
 
@@ -516,6 +522,10 @@
   width: 100px;
   height: 40px;
   color: white;
+}
+
+.operateBtn:hover {
+  cursor: pointer;
 }
 
 .regularBox {
@@ -586,5 +596,9 @@
   background: #13227a;
   color: white;
   text-align: center;
+}
+
+.comfirmBtn:hover {
+  cursor: pointer;
 }
 </style>

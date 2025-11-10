@@ -20,7 +20,7 @@
 
   onMounted(async() => {
     try {
-      let nftlistreq = await doGetRequest("https://continental-jade-wildcat.myfilebase.com/ipfs/QmaWjc8Eytjg1p7p7bspBqvFeu5mmwP8Vw2KNUNy7sGpuN");
+      let nftlistreq = await doGetRequest("https://continental-jade-wildcat.myfilebase.com/ipfs/QmQSELhzVrRhRwdEALvd6bvtojfdcgBuFtAQM9cZ3myi6k");
       nftAry.value = nftlistreq;
     } catch(error) {
       console.log("onMounted error==", error)
@@ -29,19 +29,25 @@
 
   onUnmounted(()=>{
     audioPlayer.value = null;
+    playTimeout = null;
   })
 
-  const playingNftIndex = ref(-1)
+  const playingNftIndex = ref(-1);
 
   const audioSrc = ref(); // 音频文件的路径
   const audioPlayer = ref(null);
+  let playTimeout = null;
 
   function playMusicFn(audioUrl) {
     if (audioPlayer.value) {
       audioPlayer.value.pause();
     }
-    audioPlayer.value.src = audioUrl
-    audioPlayer.value.play();
+
+    playTimeout = null;
+    playTimeout = setTimeout(() => {
+      audioPlayer.value.src = audioUrl
+      audioPlayer.value.play();
+    }, 300);
   }
 
   function pauseMusicFn() {
@@ -158,21 +164,23 @@
   <div class="activityBox flex_row_wrap">
     <ShowTipView :tiptext="tiptext" :tiptype="tiptype" :isShow="tipShow"></ShowTipView>
     <audio ref="audioPlayer" id="myAudio" :src="audioSrc" @ended="handleMusicEndFn" hidden></audio>
-    <div class="nftItem" v-for="(item,index) in nftAry" @mouseenter="handleMouseEnterFn(index)" @mouseleave="handleMounseLeaveFn(index)">
-      <div class="nftPicBox" :id="`nft${index}`" >
-        <img class="nftPic" v-lazy="item.image_url" :id="`nftImg${index}`" @click="forwardNftDetail(item.contract)" />
-        <img class="musicOperatePic" src="../assets/images/music_play.png" :id="`musicPlay${index}`" @click="doPlayNftMusicFn(index,item.music_url)"/>
-        <img class="musicOperatePic" src="../assets/images/music_pause.png" :id="`musicPause${index}`" @click="doPauseNftMusicFn(index)"/>
-      </div>
-      <div class="nftNormalButtom">
-        <p>{{item.name}}</p>
-        <button class="mintBtn">
-          mint
-        </button>
-      </div>
+    <div class="nftBox">
+      <div class="nftItem" v-for="(item,index) in nftAry" @mouseenter="handleMouseEnterFn(index)" @mouseleave="handleMounseLeaveFn(index)">
+        <div class="nftPicBox" :id="`nft${index}`" >
+          <img class="nftPic" v-lazy="item.image_url" :id="`nftImg${index}`" @click="forwardNftDetail(item.contract)" />
+          <img class="musicOperatePic" src="../assets/images/music_play.png" :id="`musicPlay${index}`" @click="doPlayNftMusicFn(index,item.music_url)"/>
+          <img class="musicOperatePic" src="../assets/images/music_pause.png" :id="`musicPause${index}`" @click="doPauseNftMusicFn(index)"/>
+        </div>
+        <div class="nftNormalButtom">
+          <p>{{item.name}}</p>
+          <button class="mintBtn">
+            mint
+          </button>
+        </div>
 
-      <div class="nftFocusButtom" @click="doMintNftFn(item.contract)">
-        mint
+        <div class="nftFocusButtom" @click="doMintNftFn(item.contract)">
+          mint
+        </div>
       </div>
     </div>
   </div>
@@ -185,9 +193,19 @@
   height: 100%;
 }
 
+.nftBox {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 33.33% 33.33% 33.33%;
+}
+
+.nftBox:first-child {
+  width: 100%;
+  background: red;
+}
+
 .nftItem {
-  margin-left: 120px;
-  margin-bottom: 40px;
+  margin: 20px auto;
   display: flex;
   flex-direction: column;
   width: 302px;
@@ -248,7 +266,7 @@
   left: 20px;
   width: 260px;
   height: 260px;
-  background-image: url('../assets/images/bg_nft.png');
+  background-image: url('../assets/images/bg_nft.jpg');
   background-size: cover;
 }
 
@@ -293,6 +311,10 @@
 
 .nftFocusButtom:active {
   background-color: #1633d8;
+}
+
+.nftFocusButtom:hover {
+  cursor: pointer;
 }
 
 </style>

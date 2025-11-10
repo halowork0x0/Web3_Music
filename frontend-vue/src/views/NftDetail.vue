@@ -225,13 +225,6 @@
   padding: 40px;
 }
 
-.goBackView {
-  width: 100px;
-  height: 40px;
-  font-weight: bold;
-  font-size: 16px;
-}
-
 .detailMsgBox {
   margin-top: 40px;
   display: flex;
@@ -257,6 +250,10 @@
   height: 40px;
   background: #13227a;
   color: white;
+}
+
+.mintBtn:hover {
+  cursor: pointer;
 }
 
 .regularBox {
@@ -318,7 +315,7 @@
   width: 300px;
   height: 300px;
   transform: rotate(360);
-  background-image: url('../assets/images/bg_nft.png');
+  background-image: url('../assets/images/bg_nft.jpg');
   background-size: cover;
 }
 </style>

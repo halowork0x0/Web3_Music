@@ -75,7 +75,7 @@
     if (myInterval != null) {
       clearInterval(myInterval)
     }
-    myInterval = null
+    myInterval = null;
   }
 
   onUnmounted(function(){
@@ -228,6 +228,10 @@
   text-align: center;
   border-radius: 30px;
   background: #13227a;
+}
+
+.requestBtn:hover {
+  cursor: pointer;
 }
 
 .disableBtn {

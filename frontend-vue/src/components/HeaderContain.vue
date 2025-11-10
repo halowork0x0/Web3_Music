@@ -89,7 +89,7 @@ onMounted(async() => {
     <div class="header">
       <div class="hearderLeftBox">
         <img src="../assets/images/icon_white.png" class="projectIconImg"/>
-        <p class="txstyle">W3 Music</p>
+        <p class="txstyle">Web3 Music</p>
       </div>
       
       <div class="routerlinkBox">
@@ -142,7 +142,7 @@ onMounted(async() => {
 .txstyle{
   margin-left: 10px;
   font-size: 20px;
-  color: gray;
+  color: #f2f2f2;
   font-weight: bold;  
 }
 

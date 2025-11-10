@@ -65,6 +65,35 @@
     }
   }
 
+  async function refreshAccountTokenBalance(account) {
+    let provider =  ethers.getDefaultProvider("https://eth-sepolia.g.alchemy.com/v2/vX2726Xs95kD20sxRSF7J");
+
+    const blocksToWait = 1;
+    provider.getBlockNumber().then(currentBlockNumber => {
+      const targetBlockNumber = currentBlockNumber + blocksToWait;
+
+      // 监听新区块事件
+      provider.on("block", async (blockNumber) => {
+        if (blockNumber >= targetBlockNumber) {
+          let mycontract =  new ethers.Contract(wmcTokenContract, wmcTokenContractAbi, provider);
+
+          let ethBalance = await provider.getBalance(account);
+          let ethValue = ethers.formatEther(ethBalance);
+          let showEthValue = showTokenValueFn(ethValue);
+
+          let wmcBalance = await mycontract.balanceOf(account);
+          let wmcValue = ethers.formatEther(wmcBalance);
+          let showWmcValue = showTokenValueFn(wmcValue);
+
+          linkAccount.value.ethValue = showEthValue;
+          linkAccount.value.wmcValue = showWmcValue;
+          // 取消监听以节省资源
+          provider.off("block");
+        }
+      });
+    });
+  }
+
   function showTokenValueFn(value) {
     let valueNum = Number(value);
     if (valueNum > 1 ) {
@@ -97,13 +126,15 @@
 
   const sendToken = ref({
     tokenType: 0,
-    sendAmount: '' ,
     receiverAddress: '',
+    sendAmount: '' ,
   })
 
   const showSendDialog = ref(false);
   function showTokenSendDialogFn(tokenType) {
-    sendToken.value.tokenType = tokenType
+    sendToken.value.tokenType = tokenType;
+    sendToken.value.receiverAddress = '';
+    sendToken.value.sendAmount = '';
     showSendDialog.value = true;
   }
 
@@ -119,7 +150,7 @@
 
       let receiverAddress = sendToken.value.receiverAddress;
       let sendAmount = sendToken.value.sendAmount;
-      if (sendToken.value.tokenType == 1) {
+      if (sendToken.value.tokenType == 1) {          //转账 ETH
         let sendTx = await signer.sendTransaction({
           to: receiverAddress,
           value: ethers.parseEther(sendAmount)
@@ -130,9 +161,10 @@
           provider.waitForTransaction(sendTx.hash).then((receipt) => {
           if (receipt.status == 1) {
             closeSendDialogFn();
-            showTipViewFn("success", tiptype_success)
+            showTipViewFn("success", tiptype_success);
+            refreshAccountTokenBalance(account);
           } else {
-            showTipViewFn("error", tiptype_warning)
+            showTipViewFn("error", tiptype_warning);
           }
           setTimeout(function(){
             tipShow.value = false
@@ -142,14 +174,14 @@
             console.error("监听交易时出错:", error);
           })
         }
-      } else {
+      } else {         //转账 WMC
         showTipViewFn("loading...", tiptype_loading)
         let contract = new ethers.Contract(wmcTokenContract, wmcTokenContractAbi, signer);
         let txStatus = await contract.transfer(receiverAddress,ethers.parseEther(sendAmount));
         if (txStatus) {
-          showTipViewFn("success", tiptype_success); 
-          getAccountBalanceMsgFn();
           closeSendDialogFn();
+          showTipViewFn("success", tiptype_success);
+          refreshAccountTokenBalance(account);
         }else {
           showTipViewFn("error", tiptype_warning);
         }
@@ -176,11 +208,15 @@
   function closeTipViewFn(){
     tipShow.value = false
   }
+
+  function inputTokenAmount(event) {
+    const inputAmount = event.target.value.replace(/[^0-9.]/g, '').replace(/^\./, '');
+    sendToken.value.sendAmount = inputAmount;
+  }
 </script>
 
 <template>
   <div class="profileBox">
-    <p class="goBackView" @click="goBackPathFn">< Back</p>
     <ShowTipView :tiptext="tiptext" :tiptype="tiptype" :isShow="tipShow"></ShowTipView>
     <div class="acTokenBox flex_column">
       <p style="text-align: center;line-height: 60px;" class="big_bold_text border_bottom_solid">Profile</p>
@@ -228,7 +264,7 @@
 
         <div class="flex_row_center" style="margin-top: 20px; margin-left: 30px;">
            <p style="margin-right:10px;">amount:</p>
-          <input class="dialogInput" placeholder="0" v-model="sendToken.sendAmount">
+          <input class="dialogInput" placeholder="0" v-model="sendToken.sendAmount" @input="inputTokenAmount">
           </input>
         </div>
 
@@ -252,13 +288,6 @@
   display: flex;
   flex-direction: column;
   padding: 40px;
-}
-
-.goBackView {
-  width: 100px;
-  height: 40px;
-  font-weight: bold;
-  font-size: 16px;
 }
 
 .acTokenBox {
@@ -288,6 +317,10 @@
   height: 30px;
   background: #13227a;
   color: white;
+}
+
+.sendBtn:hover {
+  cursor: pointer;
 }
 
 .sendDialogBox {
@@ -338,8 +371,12 @@
   text-align: center;
 }
 
+.comfirmBtn:hover {
+  cursor: pointer;
+}
+
 .tabBox {
-  margin: 50px auto 10px;
+  margin: 50px auto 0px;
   width: 200px;
   height: 50px;
   border-style: solid;
@@ -355,6 +392,10 @@
   text-align: center;
 }
 
+.tabItem:hover {
+  cursor: pointer;
+}
+
 .tabNormalItem {
   background: white;
   color: black;
@@ -367,6 +408,5 @@
 
 .tabContain {
   width: 100%;
-  margin-top: 20px;
 }
 </style>

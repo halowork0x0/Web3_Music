@@ -45,8 +45,8 @@
 
 <template>
 <div>
-  <div class="activityBox flex_column">
-    <div class="flex_row_wrap">
+  <div class="activityBox flex_row_wrap">
+    <div class="nftBox">
       <div class="nftItem" v-for="item in myMusicNftAry" v-if="isloading==false">
         <div class="nftPicBox">
           <img class="nftPic" v-lazy="item.image_url" />
@@ -56,9 +56,8 @@
           <p>#{{item.tokenId}}</p>
         </div>
       </div>
-
-      <p v-if="isloading==false&&myMusicNftAry.length==0" style="margin: 0 auto;">暂无发现你的NFT</p>
     </div>
+    <p v-if="isloading==false&&myMusicNftAry.length==0" style="margin: 0 auto;">暂无发现你的NFT</p>
   </div>
 </div>
 
@@ -71,9 +70,14 @@
   height: 100%;
 }
 
+.nftBox {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 33.33% 33.33% 33.33%;
+}
+
 .nftItem {
-  margin-left: 120px;
-  margin-bottom: 40px;
+  margin: 20px auto;
   display: flex;
   flex-direction: column;
   width: 302px;
@@ -126,7 +130,7 @@
   left: 20px;
   width: 260px;
   height: 260px;
-  background-image: url('../assets/images/bg_nft.png');
+  background-image: url('../assets/images/bg_nft.jpg');
   background-size: cover;
 }
 

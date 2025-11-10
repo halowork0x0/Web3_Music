@@ -52,30 +52,32 @@
 
 <template>
   <div class="activityBox flex_row_wrap">
-    <div class="fundItem flex_column" v-for="item in myFundAry" v-if="isloading==false">
-      <div class="flex_row_center">
-        <p class="txtLeft">合约: </p>
-        <p class="txtRight">{{item.fundContract}}</p>
-      </div>
+    <div class="fundBox">
+      <div class="fundItem flex_column" v-for="item in myFundAry" v-if="isloading==false">
+        <div class="flex_row_center">
+          <p class="txtLeft">合约: </p>
+          <p class="txtRight">{{item.fundContract}}</p>
+        </div>
 
-      <div class="flex_row_center" style="margin-top: 6px;">
-        <p class="txtLeft">歌曲: </p>
-        <p class="txtRight">{{item.song}}</p>
-      </div>
+        <div class="flex_row_center" style="margin-top: 6px;">
+          <p class="txtLeft">歌曲: </p>
+          <p class="txtRight">{{item.song}}</p>
+        </div>
 
-      <div class="flex_row_center" style="margin-top: 6px;">
-        <p class="txtLeft">歌手: </p>
-        <p class="txtRight">{{item.singer}}</p>
-      </div>
+        <div class="flex_row_center" style="margin-top: 6px;">
+          <p class="txtLeft">歌手: </p>
+          <p class="txtRight">{{item.singer}}</p>
+        </div>
 
-      <div class="flex_row_center" style="margin-top: 6px;">
-        <p class="txtLeft">活动状态: </p>
-        <p class="txtRight">{{item.fundActivityStatus==1?'进行中':'已结束'}}</p>
-      </div>
+        <div class="flex_row_center" style="margin-top: 6px;">
+          <p class="txtLeft">活动状态: </p>
+          <p class="txtRight">{{item.fundActivityStatus==1?'进行中':'已结束'}}</p>
+        </div>
 
-      <div class="flex_row_center" style="margin-top: 6px;">
-        <p class="txtLeft">我的筹款: </p>
-        <p class="txtRight">{{item.fundEthValue}} ETH</p>
+        <div class="flex_row_center" style="margin-top: 6px;">
+          <p class="txtLeft">我的筹款: </p>
+          <p class="txtRight">{{item.fundEthValue}} ETH</p>
+        </div>
       </div>
     </div>
     <p v-if="isloading==false&&myFundAry.length==0" style="margin: 0 auto;">暂无发现你的捐筹</p>
@@ -87,11 +89,16 @@
   width: 100%;
   height: 100%;
   padding: 40px;
-  display: flex;
-  flex-direction: column;
+}
+
+.fundBox {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 50% 50%;
 }
 
 .fundItem {
+  margin: 20px auto;
   width: 522px;
   border-radius: 10px;
   padding: 20px;
