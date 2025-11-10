@@ -483,11 +483,13 @@
 .txtLeft {
   display: block;
   width: 80px;
+  color: #000;
 }
 
 .txtRight {
   display: block;
   width: 200px;
+  color: #000;
 }
 
 .detailImg {
@@ -531,6 +533,7 @@
 .regularBox {
   margin-top: 40px;
   width: 640px;
+  color: #000;
 }
 
 .fundDialogBox {
@@ -549,6 +552,7 @@
   margin: 140px auto;
   background: white;
   border-radius: 30px;
+  color: #000;
 }
 
 .dialogTitleBox {

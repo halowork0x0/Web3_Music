@@ -33,11 +33,11 @@ function clickRouterLinkFn(selected) {
 
 const showWalletOperate = ref(false)
 function showHideAccountOperateFn() {
-  if (showWalletOperate.value) {
-    hideOperateFn();
-  }else {
-    showOperateFn();
-  }
+  // if (showWalletOperate.value) {
+  //   hideOperateFn();
+  // }else {
+  //   showOperateFn();
+  // }
 }
 
 function showOperateFn() {

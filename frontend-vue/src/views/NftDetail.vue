@@ -240,6 +240,7 @@
   border-width: 2px;
   border-style: solid;
   border-color: gray;
+  color: #000;
 }
 
 .mintBtn {
@@ -261,6 +262,7 @@
   margin-left: 100px;
   width: 640px;
   height: 600px;
+  color: #000;
 }
 
 .txtLeft {

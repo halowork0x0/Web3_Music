@@ -57,7 +57,7 @@
         </div>
       </div>
     </div>
-    <p v-if="isloading==false&&myMusicNftAry.length==0" style="margin: 0 auto;">暂无发现你的NFT</p>
+    <p v-if="isloading==false&&myMusicNftAry.length==0" style="margin: 0 auto; color: #000;">暂无发现你的NFT</p>
   </div>
 </div>
 
@@ -141,6 +141,7 @@
   border-top-style: solid;
   border-top-width: 1px;
   border-top-color: #f2f2f2;
+  color: #000;
 }
 
 </style>

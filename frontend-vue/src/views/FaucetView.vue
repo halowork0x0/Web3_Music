@@ -138,9 +138,9 @@
 <template>
   <div class="faucetBox">
     <ShowTipView :tiptext="tiptext" :tiptype="tiptype" :isShow="tipShow"></ShowTipView>
-    <p style="font-size: 24px; font-weight: bold;">Faucet for WMC test token</p>
+    <p style="font-size: 24px; font-weight: bold; color: #000;">Faucet for WMC test token</p>
 
-    <p style="display:block;margin-top:10px;">WMC token contract: 0x1E80Bb1bc6F0d6042a207b934cd625789a5EDEfa</p>
+    <p style="display:block;margin-top:10px; color: #000;">WMC token contract: 0x1E80Bb1bc6F0d6042a207b934cd625789a5EDEfa</p>
 
     <p style="display:block; margin-top:10px;color:red;">you could claim 500 WMC every 24 hours</p>
 

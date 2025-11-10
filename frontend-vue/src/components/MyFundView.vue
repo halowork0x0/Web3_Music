@@ -80,7 +80,7 @@
         </div>
       </div>
     </div>
-    <p v-if="isloading==false&&myFundAry.length==0" style="margin: 0 auto;">暂无发现你的捐筹</p>
+    <p v-if="isloading==false&&myFundAry.length==0" style="margin: 0 auto; color: #000;">暂无发现你的捐筹</p>
   </div>
 </template>
 
@@ -105,6 +105,7 @@
   border-width: 1px;
   border-color: lightgray;
   border-style: solid;
+  color: #000;
 }
 
 .txtLeft {

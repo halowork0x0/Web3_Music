@@ -220,17 +220,17 @@
     <ShowTipView :tiptext="tiptext" :tiptype="tiptype" :isShow="tipShow"></ShowTipView>
     <div class="acTokenBox flex_column">
       <p style="text-align: center;line-height: 60px;" class="big_bold_text border_bottom_solid">Profile</p>
-      <p style="line-height: 50px;" v-if="!hadConnected">Please connect wallet first</p>
+      <p style="line-height: 50px; color: #000;" v-if="!hadConnected">Please connect wallet first</p>
       <div style="height: 60px;" class="flex_row_center" v-if="hadConnected">
-        <p style="font-weight: bold;">Account: </p>
-        <p style="margin-left: 10px;">{{linkAccount.account}}</p>
+        <p style="font-weight: bold; color: #000;">Account: </p>
+        <p style="margin-left: 10px; color: #000;">{{linkAccount.account}}</p>
       </div>
      
       <div class="flex_row_center" v-if="hadConnected">
         <div class="actokenItem rightborder flex_spacebetween_center">
           <div class="flex_row_center">
             <p style="font-size: 16px; color: red;">ETH: </p> 
-            <p style="margin-left: 10px;">{{linkAccount.ethValue}}</p>
+            <p style="margin-left: 10px; color: #000;">{{linkAccount.ethValue}}</p>
           </div>
 
           <button class="sendBtn" @click="showTokenSendDialogFn(1)">send</button>
@@ -239,7 +239,7 @@
         <div class="actokenItem flex_spacebetween_center">
           <div class="flex_row_center" style="margin-left: 10px;">
             <p style="font-size: 16px; color: red;">WMC: </p> 
-            <p style="margin-left: 10px;">{{linkAccount.wmcValue}}</p>
+            <p style="margin-left: 10px; color: #000;">{{linkAccount.wmcValue}}</p>
           </div>
 
           <button class="sendBtn" @click="showTokenSendDialogFn(2)">send</button>
@@ -329,6 +329,7 @@
   top: 0px;
   width: 100%;
   height: 100%;
+  color: #000;
   background-color: rgba(19, 13, 13, 0.6);
 }
 

@@ -172,7 +172,7 @@
           <img class="musicOperatePic" src="../assets/images/music_pause.png" :id="`musicPause${index}`" @click="doPauseNftMusicFn(index)"/>
         </div>
         <div class="nftNormalButtom">
-          <p>{{item.name}}</p>
+          <p style="color: #000;">{{item.name}}</p>
           <button class="mintBtn">
             mint
           </button>
