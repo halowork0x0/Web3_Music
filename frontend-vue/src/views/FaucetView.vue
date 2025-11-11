@@ -6,7 +6,6 @@
   import  ShowTipView  from '../components/ShowTipView.vue'
   import { tiptype_success,tiptype_warning,tiptype_loading } from '../customdata/localdata'
   import { useStore } from 'vuex'
-  import { switchSepoliaChain } from '../composables/useEther'
 
   const store = useStore()
   const hadConnected = computed(()=>store.state.hadconnect);
@@ -84,19 +83,8 @@
 
   async function claimFaucetFn(){
     try {
-      if (!window.ethereum) {
-        showTipViewFn("请先安装metamask!", tiptype_warning)
-        setTimeout(function(){
-          tipShow.value = false
-        },2000)
-        return
-      } 
-
-      await switchSepoliaChain(); 
-
       const provider = new ethers.BrowserProvider(window.ethereum)
       const signer = await provider.getSigner()
-      const account = await signer.getAddress()
 
       const contract =  new ethers.Contract(wmcTokenContract, wmcTokenContractAbi, signer);
       const faucetTx = await contract.claimFaucet()

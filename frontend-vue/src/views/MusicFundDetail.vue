@@ -6,7 +6,7 @@
   import { fundContractAbi } from '../contractABI/myFundAbi';
   import  ShowTipView  from '../components/ShowTipView.vue';
   import { tiptype_success, tiptype_warning, tiptype_loading } from '../customdata/localdata';
-  import { switchSepoliaChain } from '../composables/useEther'
+  import { getConnectedStatus } from '../sessiondata/accountdata.js'
 
   const route = useRoute();
   const fundContract = route.params.contract;
@@ -138,15 +138,13 @@
 
   async function doGetFundFn() {
     try {
-      if (!window.ethereum) {
+      if(!getConnectedStatus()) {
         showTipViewFn("请先连接钱包!", tiptype_warning)
         setTimeout(function(){
           tipShow.value = false
         },2000)
         return
       }
-      
-      await switchSepoliaChain(); 
 
       const provider = new ethers.BrowserProvider(window.ethereum)
       const signer = await provider.getSigner()
@@ -188,18 +186,16 @@
 
   async function doRefundFn() {
      try {
-      if (!window.ethereum) {
+      if(!getConnectedStatus()) {
         showTipViewFn("请先连接钱包!", tiptype_warning)
         setTimeout(function(){
           tipShow.value = false
         },2000)
         return
       } 
-      await switchSepoliaChain(); 
 
       const provider = new ethers.BrowserProvider(window.ethereum)
       const signer = await provider.getSigner()
-      const account = await signer.getAddress()
 
       const contract =  new ethers.Contract(fundContract, fundContractAbi, signer);
       const refundTx = await contract.refund()
@@ -254,7 +250,7 @@
 
   async function showFundDialogFn() {
     try {
-      if (!window.ethereum) {
+      if(!getConnectedStatus()) {
         showTipViewFn("请先连接钱包!", tiptype_warning)
         setTimeout(function(){
           tipShow.value = false
@@ -263,6 +259,7 @@
       }else {
         dialogShow.value = true;
         fundAmount.value = '';
+        fundValue.value = 0;
       }
     }catch(error) {
       console.log("error==", error)
@@ -312,21 +309,10 @@
 
   async function doFundOperate() {
     try {
-      if (!window.ethereum) {
-        showTipViewFn("请先连接钱包!", tiptype_warning)
-        setTimeout(function(){
-          tipShow.value = false
-        },2000)
-        return
-      } 
-
-      await switchSepoliaChain(); 
-
       showTipViewFn("loading...", tiptype_loading);
 
       const provider = new ethers.BrowserProvider(window.ethereum)
       const signer = await provider.getSigner()
-      const account = await signer.getAddress()
 
       const contract =  new ethers.Contract(fundContract, fundContractAbi, signer);
       const amountToSend = ethers.parseEther(fundAmount.value);

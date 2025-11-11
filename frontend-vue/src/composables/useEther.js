@@ -2,11 +2,7 @@ import { ethers } from 'ethers'
 import { 
   setConnectedStatus, 
   getConnectedStatus, 
-  setConnectingStatus, 
-  getConnectingStatus, 
   setConnectAccount,
-  setConnectChainId,
-  getConnectChainId
 } from '../sessiondata/accountdata.js'
 
 export const checkConnection = async() => {
@@ -24,56 +20,57 @@ export const checkConnection = async() => {
 }
 
 export const connect = async() => {
-  if (getConnectingStatus()) {
-    return
-  }
-  setConnectingStatus(true)
   try {
-    // const success = await connectWallet()
-    // if (success) {
-    //   setConnectedStatus(true)
-    // }
     await connectWallet()
   } catch (error) {
     console.error('连接错误:', error)
-  } finally {
-      setConnectingStatus(false)
-  }
+  } 
 }
 
 export const connectWallet = async() => {
-  if (!window.ethereum) {
+  if (window.ethereum) {
+    // 检查当前网络是否为Sepolia或主网，如果不是，则尝试切换网络
+    await window.ethereum.request({ method: 'net_version' })
+    .then(async(networkId) => {
+      const isSepolia = networkId === "11155111"; // Sepolia的Chain ID是11155111
+      if (!isSepolia) {
+      await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: '0xaa36a7' }] 
+        }).then(async()=>{
+          await setBrowserAccountConnectedMsg();
+        })
+        .catch((switchError) => {
+          // 处理用户拒绝切换或未安装MetaMask的情况
+          if (switchError.code === 4902) { // 用户拒绝了网络切换请求（不被允许）
+            console.error('Please add Sepolia Testnet to MetaMask.'); // 提示用户添加网络
+          } else { // 其他错误处理逻辑
+            console.error('Error switching network:', switchError);
+          }
+        });
+      } else { // 如果已经在正确的网络，直接连接钱包
+      await window.ethereum.request({ method: 'eth_requestAccounts' })
+        .then(async() => {
+          await setBrowserAccountConnectedMsg()
+        })
+        .catch(error => {
+          setConnectedStatus(false)
+          console.error("Wallet connection error:", error);
+        });
+      }
+  });
+  } else { // 没有检测到MetaMask或其他钱包扩展的情况处理逻辑
     alert('请安装 MetaMask 钱包!')
     throw new Error('请安装 MetaMask!')
   }
+}
 
-  try { 
-    // 请求账户访问
-    await window.ethereum.request({ method: 'eth_requestAccounts' })
-
-    // 使用 ethers v6 的 BrowserProvider (修复了 #notReady 问题)
-    const provider = new ethers.BrowserProvider(window.ethereum)
-
-    // 获取签名者
-    const signer = await provider.getSigner()
-    const account = await signer.getAddress()
-    setConnectAccount(account)
-      
-      // 获取网络信息
-    const network = await provider.getNetwork()
-    const chainId = Number(network.chainId)
-    setConnectChainId(chainId)
-
-    setConnectedStatus(true)
-      
-    return true
-  } catch (error) {
-    setConnectedStatus(false)
-    console.error('连接失败:', error)
-    throw error
-  } finally {
-    setConnectingStatus(false)
-  }
+export const setBrowserAccountConnectedMsg = async()=>{
+  const provider = new ethers.BrowserProvider(window.ethereum)
+  const signer = await provider.getSigner()
+  const account = await signer.getAddress()
+  setConnectAccount(account)
+  setConnectedStatus(true)
 }
 
 export const switchSepoliaChain = async() => {

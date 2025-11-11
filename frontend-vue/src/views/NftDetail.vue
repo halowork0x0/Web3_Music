@@ -6,7 +6,7 @@
   import { nftContractAbi } from '../contractABI/myNftAbi'
   import  ShowTipView  from '../components/ShowTipView.vue'
   import { tiptype_success,tiptype_warning,tiptype_loading } from '../customdata/localdata'
-  import { switchSepoliaChain } from '../composables/useEther';
+  import { getConnectedStatus } from '../sessiondata/accountdata.js'
 
   function goBackPathFn () {
     window.history.back()
@@ -119,15 +119,13 @@
 
   async function doMintNftFn() {
     try {
-      if (!window.ethereum) {
+      if(!getConnectedStatus()) {
         showTipViewFn("请先连接钱包!", tiptype_warning)
         setTimeout(function(){
           tipShow.value = false
         },2000)
         return
       }
-      
-      await switchSepoliaChain();
 
       const provider = new ethers.BrowserProvider(window.ethereum)
       const signer = await provider.getSigner()

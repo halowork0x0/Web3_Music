@@ -4,20 +4,15 @@ import { RouterLink } from 'vue-router';
 import { checkConnection, connectWallet } from '../composables/useEther.js'
 import { 
   getConnectedStatus, 
-  getConnectingStatus, 
   getConnectAccount, 
-  getConnectChainId,
   setConnectedStatus,
-  setConnectingStatus,
   setConnectAccount
 } from '../sessiondata/accountdata.js'
 import { setTabarIndex,getTabarIndex } from '../sessiondata/accountdata.js'
 import { useStore } from 'vuex';
 
 const isConnected = ref(getConnectedStatus())
-const isConnecting = ref(getConnectingStatus())
 const account = ref(getConnectAccount())
-const chainId = ref(getConnectChainId())
 
 const FUND_SELECTED = 1;
 const NFT_SELECTED = 2;
@@ -50,24 +45,21 @@ function hideOperateFn() {
 
 const store = useStore()
 async function doConnectAccountFn() {
-  if (!getConnectingStatus()) {
-    await connectWallet()
-    if (getConnectedStatus()) {
-      isConnected.value = true;
-      isConnecting.value = false;
-      account.value = getConnectAccount();
-      store.commit('setWalletConnected');
-    }
+  await connectWallet()
+  console.log('doConnectAccountFn====')
+  console.log('getConnectedStatus====',getConnectedStatus())
+  if (getConnectedStatus()) {
+    isConnected.value = true;
+    account.value = getConnectAccount();
+    store.commit('setWalletConnected');
   }
 }
 
 function disconnectAccountFn() {
   if (isConnected.value) {
     isConnected.value = false
-    isConnecting.value = false
     account.value = ''
     setConnectedStatus(false)
-    setConnectingStatus(false)
     setConnectAccount('')
   }
 
@@ -104,7 +96,7 @@ onMounted(async() => {
       </div>
 
       <button class="connectBtn" v-if="isConnected" @click="showHideAccountOperateFn">{{ account.slice(0, 4) }}...{{ account.slice(-4) }}</button>
-      <button class="connectBtn" v-else @click="doConnectAccountFn">{{!isConnecting?'连接钱包':'连接中...'}}</button>
+      <button class="connectBtn" v-else @click="doConnectAccountFn">连接钱包</button>
 
       <div class="walletOperateBox" v-if="isConnected && showWalletOperate">
         <div class="operateView" @click="disconnectAccountFn">
