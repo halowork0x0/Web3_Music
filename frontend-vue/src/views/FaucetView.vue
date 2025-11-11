@@ -4,7 +4,6 @@
   import { wmcTokenContractAbi } from '../contractABI/myTokenAbi'
   import { ethers } from 'ethers'
   import  ShowTipView  from '../components/ShowTipView.vue'
-  import { tiptype_success,tiptype_warning,tiptype_loading } from '../customdata/localdata'
   import { useStore } from 'vuex'
 
   const store = useStore()
@@ -89,21 +88,18 @@
       const contract =  new ethers.Contract(wmcTokenContract, wmcTokenContractAbi, signer);
       const faucetTx = await contract.claimFaucet()
       if (faucetTx.hash) {
-        showTipViewFn("正在领取WMC代币...", tiptype_loading)
+        showTipRef.value.showLoadingTipConstantly('正在领取中');
         provider.waitForTransaction(faucetTx.hash).then((receipt) => {
         cooltimestamp = 60 * 60 *24;
         availFaucet.value = false
         startCoolTimeIntervalFn();
         if (receipt.status == 1) {
-          showTipViewFn("领取代币成功", tiptype_success)
+          showTipRef.value.showSuccessTip('领取成功');
         } else {
-          showTipViewFn("领取代币出错", tiptype_warning)
+          showTipRef.value.showWarningTip('领取出错');
         }
-        setTimeout(function(){
-          tipShow.value = false
-        },2000)
         }).catch((error) => {
-          tipShow.value = false
+          showTipRef.value.closeTipView();
           console.error("监听交易时出错:", error);
         })
       }
@@ -112,20 +108,12 @@
     }
   }
 
-  const tipShow = ref(false)
-  const tiptext = ref('')
-  const tiptype = ref('')
-
-  function showTipViewFn(text, type) {
-    tiptext.value = text
-    tiptype.value = type
-    tipShow.value = true
-  }
+  const showTipRef = ref(null);
 </script>
 
 <template>
   <div class="faucetBox">
-    <ShowTipView :tiptext="tiptext" :tiptype="tiptype" :isShow="tipShow"></ShowTipView>
+    <ShowTipView ref="showTipRef"></ShowTipView>
     <p style="font-size: 24px; font-weight: bold; color: #000;">Faucet for WMC test token</p>
 
     <p style="display:block;margin-top:10px; color: #000;">WMC token contract: 0x1E80Bb1bc6F0d6042a207b934cd625789a5EDEfa</p>

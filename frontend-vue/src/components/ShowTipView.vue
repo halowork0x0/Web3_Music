@@ -1,45 +1,53 @@
 <script setup>
-import { ref, toRefs, watch } from 'vue';
+import { ref } from 'vue';
 import img_warning from "@/assets/images/warning.png"
 import img_success from "@/assets/images/success.png"
 import img_loading from "@/assets/images/loading.png"
 
-import { tiptype_success,tiptype_warning,tiptype_loading } from '../customdata/localdata'
-
-  const props = defineProps({
-    tiptype: {
-      type: String,
-      default: "0"
-    },
-    tiptext: {
-      type: String,
-      default: 'halohalo'
-    },
-    isShow: {
-      type: Boolean,
-      default: false
-    }
+  defineExpose({
+    showSuccessTip,
+    showWarningTip,
+    showLoadingTipConstantly,
+    closeTipView
   })
+
+  const tiptext = ref('')
   const imagePath = ref('')
+  const isShow = ref('')
 
-  const {tiptype} = toRefs(props)
-
-  watch(tiptype, (newValue, oldValue)=> {
-    if (newValue == tiptype_success) {
-    imagePath.value = img_success
-  } else if(newValue == tiptype_warning){
-    imagePath.value = img_warning
-  } else if(newValue == tiptype_loading){
-    imagePath.value = img_loading
+  function showSuccessTip(txt) {
+    imagePath.value = img_success;
+    tiptext.value = txt;
+    isShow.value = true;
+    setTimeout(() => {
+      isShow.value = false;
+    }, 2000);
   }
-  })
+
+  function showWarningTip(txt) {
+    imagePath.value = img_warning;
+    tiptext.value = txt;
+    isShow.value = true;
+    setTimeout(() => {
+      isShow.value = false;
+    }, 2000);
+  }
+
+  function showLoadingTipConstantly(txt) {
+    imagePath.value = img_loading;
+    tiptext.value = txt;
+    isShow.value = true;
+  }
+
+  function closeTipView() {
+    isShow.value = false;
+  }
 
 </script>
 
 <template>
   <div class="tipViewBox flex_column_center" v-if="isShow">
     <img class="tip_img" :src="imagePath"></img>
-
     <p class="tip_txt">{{tiptext}}</p>
   </div>
 </template>

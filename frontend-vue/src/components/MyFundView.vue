@@ -3,38 +3,46 @@
   import { ethers } from 'ethers'
   import { doGetRequest } from '../util/networkUtil'
   import { fundContractAbi } from '../contractABI/myFundAbi';
+  import  ShowTipView  from '../components/ShowTipView.vue'
 
   const myFundAry = ref([])
   const isloading = ref(true)
+  const showTipRef = ref(null);
 
   onMounted(async()=>{
-    let fundlisReq = await doGetRequest("https://continental-jade-wildcat.myfilebase.com/ipfs/QmVsKwaNeHRGjrcAAL9NRDVWfyoadMu2vN5idWX9C3qHxG");
-    const provider = new ethers.BrowserProvider(window.ethereum)
-    const signer = await provider.getSigner()
-    const address = await signer.getAddress()
-    let fundAry = []
-    for(let index = 0; index < fundlisReq.length; index++) {
-      let mycontract =  new ethers.Contract(fundlisReq[index].contract, fundContractAbi, provider);
-      let fundEthValue = (await mycontract.musicFund(address)).toString()/10 ** 18;
-     
-      if (fundEthValue>0) {
-        let deployTimestamp = await mycontract.deployTimeStamp();
-        let windowTimestamp = await mycontract.windowTimeStamp();
-        let status = getFundActivityStatus(deployTimestamp + windowTimestamp);
+    try {
+      showTipRef.value.showLoadingTipConstantly('loading');
+      let fundlisReq = await doGetRequest("https://continental-jade-wildcat.myfilebase.com/ipfs/QmVsKwaNeHRGjrcAAL9NRDVWfyoadMu2vN5idWX9C3qHxG");
+      const provider = new ethers.BrowserProvider(window.ethereum)
+      const signer = await provider.getSigner()
+      const address = await signer.getAddress()
+      let fundAry = []
+      for(let index = 0; index < fundlisReq.length; index++) {
+        let mycontract =  new ethers.Contract(fundlisReq[index].contract, fundContractAbi, provider);
+        let fundEthValue = (await mycontract.musicFund(address)).toString()/10 ** 18;
+      
+        if (fundEthValue>0) {
+          let deployTimestamp = await mycontract.deployTimeStamp();
+          let windowTimestamp = await mycontract.windowTimeStamp();
+          let status = getFundActivityStatus(deployTimestamp + windowTimestamp);
 
-        let myfundItem = {
-          fundContract: fundlisReq[index].contract,
-          singer: fundlisReq[index].singer,
-          song: fundlisReq[index].song,
-          fundEthValue: fundEthValue,
-          fundActivityStatus: status
+          let myfundItem = {
+            fundContract: fundlisReq[index].contract,
+            singer: fundlisReq[index].singer,
+            song: fundlisReq[index].song,
+            fundEthValue: fundEthValue,
+            fundActivityStatus: status
+          }
+
+          fundAry.push(myfundItem);
         }
-
-        fundAry.push(myfundItem);
       }
+      myFundAry.value = fundAry;
+      isloading.value = false;
+      showTipRef.value.closeTipView();
+    } catch(error) {
+      console.log('error==',error);
     }
-    myFundAry.value = fundAry;
-    isloading.value = false
   })
 
   function getFundActivityStatus(endDateTimestamp) {
@@ -52,6 +60,7 @@
 
 <template>
   <div class="activityBox flex_row_wrap">
+    <ShowTipView ref="showTipRef"></ShowTipView>
     <div class="fundBox">
       <div class="fundItem flex_column" v-for="item in myFundAry" v-if="isloading==false">
         <div class="flex_row_center">

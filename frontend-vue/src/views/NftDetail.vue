@@ -5,7 +5,6 @@
   import { doGetRequest } from '../util/networkUtil'
   import { nftContractAbi } from '../contractABI/myNftAbi'
   import  ShowTipView  from '../components/ShowTipView.vue'
-  import { tiptype_success,tiptype_warning,tiptype_loading } from '../customdata/localdata'
   import { getConnectedStatus } from '../sessiondata/accountdata.js'
 
   function goBackPathFn () {
@@ -120,10 +119,7 @@
   async function doMintNftFn() {
     try {
       if(!getConnectedStatus()) {
-        showTipViewFn("请先连接钱包!", tiptype_warning)
-        setTimeout(function(){
-          tipShow.value = false
-        },2000)
+        showTipRef.value.showWarningTip('请先连接钱包!');
         return
       }
 
@@ -134,18 +130,16 @@
       const contract =  new ethers.Contract(nftcontract, nftContractAbi, signer);
       const mintTx = await contract.safeMint(account)
       if (mintTx.hash) {
-        showTipViewFn("NFT铸造中...", tiptype_loading)
+        showTipRef.value.showLoadingTipConstantly('NFT铸造中');
         provider.waitForTransaction(mintTx.hash).then((receipt) => {
         if (receipt.status == 1) {
-          showTipViewFn("NFT铸造成功", tiptype_success)
+          showTipRef.value.showSuccessTip('NFT铸造成功');
+          refreshNftAmountMsg();
         } else {
-          showTipViewFn("NFT铸造出错", tiptype_warning)
+          showTipRef.value.showWarningTip('NFT铸造出错');
         }
-        setTimeout(function(){
-          tipShow.value = false
-        },2000)
         }).catch((error) => {
-          tipShow.value = false
+          showTipRef.value.closeTipView();
           console.error("监听交易时出错:", error);
         })
       }
@@ -154,20 +148,32 @@
     }
   }
 
-  const tipShow = ref(false)
-  const tiptext = ref('')
-  const tiptype = ref('')
-
-  function showTipViewFn(text, type) {
-    tiptext.value = text
-    tiptype.value = type
-    tipShow.value = true
+  async function refreshNftAmountMsg() {
+    try {
+      let provider =  ethers.getDefaultProvider("https://eth-sepolia.g.alchemy.com/v2/vX2726Xs95kD20sxRSF7J");
+      let mycontract =  new ethers.Contract(nftcontract, nftContractAbi, provider);
+      let totalAmountStr = (await mycontract.getMaxMintAmount()).toString()
+      let mintedAmountStr = (await mycontract.totalSupply()).toString()
+      let remainAmountStr = "0"
+      if (totalAmountStr == "0") {
+        remainAmountStr = "0"
+      } else {
+        remainAmountStr = totalAmountStr - mintedAmountStr
+      }
+      totalAmount.value = totalAmountStr
+      mintedAmount.value = mintedAmountStr
+      remainAmount.value = remainAmountStr
+    } catch(error) {
+      console.log('error==', error);
+    }
   }
+
+  const showTipRef = ref(null);
 </script>
 
 <template>
   <div>
-    <ShowTipView :tiptext="tiptext" :tiptype="tiptype" :isShow="tipShow"></ShowTipView>
+    <ShowTipView ref="showTipRef"></ShowTipView>
     <div class="detailBox">
       <p class="goBackView" @click="goBackPathFn">< Back</p>
       <div class="detailMsgBox">

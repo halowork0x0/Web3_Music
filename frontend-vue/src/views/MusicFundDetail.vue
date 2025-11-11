@@ -5,7 +5,6 @@
   import { doGetRequest } from '../util/networkUtil';
   import { fundContractAbi } from '../contractABI/myFundAbi';
   import  ShowTipView  from '../components/ShowTipView.vue';
-  import { tiptype_success, tiptype_warning, tiptype_loading } from '../customdata/localdata';
   import { getConnectedStatus } from '../sessiondata/accountdata.js'
 
   const route = useRoute();
@@ -79,14 +78,12 @@
       activityStatus.value = 1;
     } else {
       if (targetFund > presentFundUSD) {   //筹款未达到目标
-        console.log('11111');
         showOperateBtn.value = {
           fundBtn: false,
           refundBtn: true,
           getfundBtn: false
         }
       } else {                      //筹款已达到目标
-        console.log('22222');
         showOperateBtn.value = {
           fundBtn: false,
           refundBtn: false,
@@ -139,10 +136,7 @@
   async function doGetFundFn() {
     try {
       if(!getConnectedStatus()) {
-        showTipViewFn("请先连接钱包!", tiptype_warning)
-        setTimeout(function(){
-          tipShow.value = false
-        },2000)
+        showTipRef.value.showWarningTip('请先连接钱包!')
         return
       }
 
@@ -151,35 +145,26 @@
       const account = await signer.getAddress()
 
       if (account != "0xe2951bd1eD4269b167F602C745c31BEC198DcF49") {
-        showTipViewFn("you're no owner!", tiptype_warning);
-        setTimeout(function(){
-          closeTipViewFn();
-        },2000)
+        showTipRef.value.showWarningTip("you're no owner!")
       } else {
         const contract =  new ethers.Contract(fundContract, fundContractAbi, signer);
         const getfundTx = await contract.getFund()
         if (getfundTx.hash) {
-          showTipViewFn("loading...", tiptype_loading)
+          showTipRef.value.showLoadingTipConstantly('loading');
           provider.waitForTransaction(getfundTx.hash).then((receipt) => {
           if (receipt.status == 1) {
-            showTipViewFn("getfund success", tiptype_success)
+            showTipRef.value.showSuccessTip('getfund success');
           } else {
-            showTipViewFn("getfund error", tiptype_warning)
+            showTipRef.value.showWarningTip('getfund error');
           }
-          setTimeout(function(){
-            closeTipViewFn()
-          },2000)
           }).catch((error) => {
-            closeTipViewFn()
+            showTipRef.value.closeTipView();
             console.error("监听交易时出错:", error);
           })
         }
       }
     } catch(error) {
-      showTipViewFn(error.reason, tiptype_warning)
-      setTimeout(function(){
-        closeTipViewFn()
-      },2000)
+      showTipRef.value.showWarningTip(error.reason);
       console.log("error===", error)
     }
   }
@@ -187,10 +172,7 @@
   async function doRefundFn() {
      try {
       if(!getConnectedStatus()) {
-        showTipViewFn("请先连接钱包!", tiptype_warning)
-        setTimeout(function(){
-          tipShow.value = false
-        },2000)
+        showTipRef.value.showWarningTip('请先连接钱包!')
         return
       } 
 
@@ -200,26 +182,20 @@
       const contract =  new ethers.Contract(fundContract, fundContractAbi, signer);
       const refundTx = await contract.refund()
       if (refundTx.hash) {
-        showTipViewFn("loading...", tiptype_loading)
+        showTipRef.value.showLoadingTipConstantly('loading');
         provider.waitForTransaction(refundTx.hash).then((receipt) => {
         if (receipt.status == 1) {
-          showTipViewFn("refund success", tiptype_success)
+          showTipRef.value.showSuccessTip('refund success');
         } else {
-          showTipViewFn("refund error", tiptype_warning)
+          showTipRef.value.showWarningTip('refund error');
         }
-        setTimeout(function(){
-          closeTipViewFn()
-        },2000)
         }).catch((error) => {
-          closeTipViewFn()
+          showTipRef.value.closeTipView();
           console.error("监听交易时出错:", error);
         })
       }
     } catch(error) {
-      showTipViewFn(error.reason, tiptype_warning)
-      setTimeout(function(){
-        closeTipViewFn()
-      },2000)
+      showTipRef.value.showWarningTip(error.reason);
       console.log("error===", error)
     }    
   }
@@ -251,10 +227,7 @@
   async function showFundDialogFn() {
     try {
       if(!getConnectedStatus()) {
-        showTipViewFn("请先连接钱包!", tiptype_warning)
-        setTimeout(function(){
-          tipShow.value = false
-        },2000)
+        showTipRef.value.showWarningTip('请先连接钱包!');
         return
       }else {
         dialogShow.value = true;
@@ -297,11 +270,7 @@
   async function doClickComfirmFundFn() {
     let showTimeout = null;
     if (await sumInputValueAmountFn(fundAmount.value) < fundDetail.value.minFund) {
-      showTipViewFn("please fund more amount!", tiptype_warning);
-      showTimeout = setTimeout(() => {
-        showTimeout = null;
-        closeTipViewFn();
-      }, 2000);
+      showTipRef.value.showWarningTip('please fund more amount!')
     }else {
       doFundOperate();
     }
@@ -309,7 +278,7 @@
 
   async function doFundOperate() {
     try {
-      showTipViewFn("loading...", tiptype_loading);
+      showTipRef.value.showLoadingTipConstantly('loading');
 
       const provider = new ethers.BrowserProvider(window.ethereum)
       const signer = await provider.getSigner()
@@ -320,42 +289,27 @@
       .then((tx) => tx.wait()) // 等待交易完成并获取交易收据
       .then((receipt) => {
         if (receipt.status == 1) {
-          showTipViewFn("fund success", tiptype_success);
+          showTipRef.value.showSuccessTip('fund success');
           closeFundDialogFn();
           refreshContractFund();
         } else {
-          showTipViewFn("fund error", tiptype_warning);
+          showTipRef.value.showWarningTip('fund error');
         }
-        setTimeout(function(){
-          closeTipViewFn();
-        },2000)
       })
       .catch((error) => {
-        closeTipViewFn();
+        showTipRef.value.closeTipView();
       });
     } catch(error) {
-      console.log("error===", error)
+      showTipRef.value.showWarningTip(error.reason);
     }
   }
 
-  const tipShow = ref(false)
-  const tiptext = ref('')
-  const tiptype = ref('')
-
-  function showTipViewFn(text, type) {
-    tiptext.value = text
-    tiptype.value = type
-    tipShow.value = true
-  }
-
-  function closeTipViewFn() {
-    tipShow.value = false;
-  }
+  const showTipRef = ref(null);
 </script>
 
 <template>
 <div>
-  <ShowTipView :tiptext="tiptext" :tiptype="tiptype" :isShow="tipShow"></ShowTipView>
+  <ShowTipView ref="showTipRef"></ShowTipView>
   <div class="detailBox">
     <p class="goBackView" @click="goBackPathFn">< Back</p>
     <div class="detailMsgBox">

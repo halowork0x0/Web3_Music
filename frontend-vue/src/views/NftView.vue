@@ -1,7 +1,6 @@
 <script setup>
   import { ref, onMounted, onUnmounted } from 'vue'
   import { useRouter } from 'vue-router';
-  import { tiptype_success,tiptype_warning,tiptype_loading } from '../customdata/localdata'
   import { doGetRequest } from '../util/networkUtil'
   import { nftContractAbi } from '../contractABI/myNftAbi'
   import { ethers } from 'ethers'
@@ -114,10 +113,7 @@
   async function doMintNftFn(nftcontract) {
     try {
       if(!getConnectedStatus()) {
-        showTipViewFn("请先连接钱包!", tiptype_warning)
-        setTimeout(function(){
-          tipShow.value = false
-        },2000)
+        showTipRef.value.showWarningTip('请先连接钱包!');
         return
       }
 
@@ -128,18 +124,15 @@
       const contract =  new ethers.Contract(nftcontract, nftContractAbi, signer);
       const mintTx = await contract.safeMint(account)
       if (mintTx.hash) {
-        showTipViewFn("NFT铸造中...", tiptype_loading)
+        showTipRef.value.showLoadingTipConstantly('NFT铸造中');
         provider.waitForTransaction(mintTx.hash).then((receipt) => {
         if (receipt.status == 1) {
-          showTipViewFn("NFT铸造成功", tiptype_success)
+          showTipRef.value.showSuccessTip('NFT铸造成功');
         } else {
-          showTipViewFn("NFT铸造出错", tiptype_warning)
+          showTipRef.value.showWarningTip('NFT铸造出错');
         }
-        setTimeout(function(){
-          tipShow.value = false
-        },2000)
         }).catch((error) => {
-          tipShow.value = false
+          showTipRef.value.closeTipView();
           console.error("监听交易时出错:", error);
         })
       }
@@ -148,20 +141,12 @@
     }
   }
 
-  const tipShow = ref(false)
-  const tiptext = ref('')
-  const tiptype = ref('')
-
-  function showTipViewFn(text, type) {
-    tiptext.value = text
-    tiptype.value = type
-    tipShow.value = true
-  }
+  const showTipRef = ref(null);
 </script>
 
 <template>
   <div class="activityBox flex_row_wrap">
-    <ShowTipView :tiptext="tiptext" :tiptype="tiptype" :isShow="tipShow"></ShowTipView>
+    <ShowTipView ref="showTipRef"></ShowTipView>
     <audio ref="audioPlayer" id="myAudio" :src="audioSrc" @ended="handleMusicEndFn" hidden></audio>
     <div class="nftBox">
       <div class="nftItem" v-for="(item,index) in nftAry" @mouseenter="handleMouseEnterFn(index)" @mouseleave="handleMounseLeaveFn(index)">

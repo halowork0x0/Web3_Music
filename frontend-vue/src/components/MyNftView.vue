@@ -1,66 +1,61 @@
 <script setup>
-  import { ref, onMounted, onUnmounted } from 'vue'
+  import { ref, onMounted } from 'vue'
   import { ethers } from 'ethers'
   import { doGetRequest } from '../util/networkUtil'
   import { nftContractAbi } from '../contractABI/myNftAbi';
+  import  ShowTipView  from '../components/ShowTipView.vue'
 
   const myMusicNftAry = ref([])
   const isloading = ref(true)
+  const showTipRef = ref(null);
 
   onMounted(async() => {
     try {
-        const provider = new ethers.BrowserProvider(window.ethereum)
-        const signer = await provider.getSigner()
-        const address = await signer.getAddress()
-        let musicNftAry = []
-        let nftlistAry = await doGetRequest("https://continental-jade-wildcat.myfilebase.com/ipfs/QmaWjc8Eytjg1p7p7bspBqvFeu5mmwP8Vw2KNUNy7sGpuN");
-        for (let index=0; index < nftlistAry.length; index++) {
-          let contract = new ethers.Contract(nftlistAry[index].contract,nftContractAbi,provider);
-          let tokenBalance = await contract.balanceOf(address);
-          if (tokenBalance>0) {
-            for(let a=0; a<tokenBalance; a++) {
-              let tokenID = (await contract.tokenOfOwnerByIndex(address, a)).toString(); // 获取特定索引的代币ID
-              let musicNftAryItemObj = Object.assign({}, nftlistAry[index]);
-              musicNftAryItemObj.tokenId = tokenID;
-              musicNftAry.push(musicNftAryItemObj);
-            }
+      showTipRef.value.showLoadingTipConstantly('loading');
+      const provider = new ethers.BrowserProvider(window.ethereum)
+      const signer = await provider.getSigner()
+      const address = await signer.getAddress()
+      let musicNftAry = []
+      let nftlistAry = await doGetRequest("https://continental-jade-wildcat.myfilebase.com/ipfs/QmaWjc8Eytjg1p7p7bspBqvFeu5mmwP8Vw2KNUNy7sGpuN");
+      for (let index=0; index < nftlistAry.length; index++) {
+        let contract = new ethers.Contract(nftlistAry[index].contract,nftContractAbi,provider);
+        let tokenBalance = await contract.balanceOf(address);
+        if (tokenBalance>0) {
+          for(let a=0; a<tokenBalance; a++) {
+            let tokenID = (await contract.tokenOfOwnerByIndex(address, a)).toString(); // 获取特定索引的代币ID
+            let musicNftAryItemObj = Object.assign({}, nftlistAry[index]);
+            musicNftAryItemObj.tokenId = tokenID;
+            musicNftAry.push(musicNftAryItemObj);
           }
         }
-        myMusicNftAry.value = musicNftAry;
-        isloading.value = false;
+      }
+      myMusicNftAry.value = musicNftAry;
+      isloading.value = false;
+      showTipRef.value.closeTipView();
     } catch(error) {
         console.log("onMounted error==", error)
     }
   })
-
-  onUnmounted(async() => {
-    console.log('onUnmounted====')
-  }) 
-
-  function delay(time) {
-    return new Promise(resolve => setTimeout(resolve, time));
-  }
-
 </script>
 
 <template>
-<div>
-  <div class="activityBox flex_row_wrap">
-    <div class="nftBox">
-      <div class="nftItem" v-for="item in myMusicNftAry" v-if="isloading==false">
-        <div class="nftPicBox">
-          <img class="nftPic" v-lazy="item.image_url" />
-        </div>
-        <div class="nftBottom flex_spacebetween_center">
-          <p>{{item.name}}</p>
-          <p>#{{item.tokenId}}</p>
+  <div>
+    <ShowTipView ref="showTipRef"></ShowTipView>
+    <div class="activityBox flex_row_wrap">
+      <div class="nftBox">
+        <div class="nftItem" v-for="item in myMusicNftAry" v-if="isloading==false">
+          <div class="nftPicBox">
+            <img class="nftPic" v-lazy="item.image_url" />
+          </div>
+          <div class="nftBottom flex_spacebetween_center">
+            <p>{{item.name}}</p>
+            <p>#{{item.tokenId}}</p>
+          </div>
         </div>
       </div>
+      <p v-if="isloading==false&&myMusicNftAry.length==0" style="margin: 0 auto; color: #000;">暂无发现你的NFT</p>
     </div>
-    <p v-if="isloading==false&&myMusicNftAry.length==0" style="margin: 0 auto; color: #000;">暂无发现你的NFT</p>
   </div>
-</div>
-
 </template>
 
 <style scoped>

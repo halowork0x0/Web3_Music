@@ -4,7 +4,6 @@
   import { wmcTokenContract } from '../customdata/web3data'
   import { wmcTokenContractAbi } from '../contractABI/myTokenAbi'
   import  ShowTipView  from '../components/ShowTipView.vue'
-  import { tiptype_success,tiptype_warning,tiptype_loading } from '../customdata/localdata'
   import { useStore } from 'vuex'
 
   const store = useStore()
@@ -16,10 +15,6 @@
       initLoadComponet();
     }
   })
-
-  function goBackPathFn () {
-    window.history.back()
-  }
 
   const linkAccount = ref({
     account: '',
@@ -157,57 +152,39 @@
         })
 
         if (sendTx.hash) {
-          showTipViewFn("loading...", tiptype_loading)
+          showTipRef.value.showLoadingTipConstantly('loading');
           provider.waitForTransaction(sendTx.hash).then((receipt) => {
           if (receipt.status == 1) {
             closeSendDialogFn();
-            showTipViewFn("success", tiptype_success);
+            showTipRef.value.showSuccessTip('转账成功');
             refreshAccountTokenBalance(account);
           } else {
-            showTipViewFn("error", tiptype_warning);
+            showTipRef.value.showWarningTip('error');
           }
-          setTimeout(function(){
-            tipShow.value = false
-          },2000)
           }).catch((error) => {
-            tipShow.value = false
+            showTipRef.value.closeTipView();
             console.error("监听交易时出错:", error);
           })
         }
       } else {         //转账 WMC
-        showTipViewFn("loading...", tiptype_loading)
+        showTipRef.value.showLoadingTipConstantly('loading');
         let contract = new ethers.Contract(wmcTokenContract, wmcTokenContractAbi, signer);
         let txStatus = await contract.transfer(receiverAddress,ethers.parseEther(sendAmount));
         if (txStatus) {
           closeSendDialogFn();
-          showTipViewFn("success", tiptype_success);
+          showTipRef.value.showSuccessTip('转账成功');
           refreshAccountTokenBalance(account);
         }else {
-          showTipViewFn("error", tiptype_warning);
+          showTipRef.value.showWarningTip('error');
         }
-        setTimeout(function(){
-          closeTipViewFn()
-        },2000)
       }
     } catch(error) {
+      showTipRef.value.closeTipView();
       console.log("error===", error)
-      closeTipViewFn();
     }
   }
 
-  const tipShow = ref(false)
-  const tiptext = ref('')
-  const tiptype = ref('')
-
-  function showTipViewFn(text, type) {
-    tiptext.value = text
-    tiptype.value = type
-    tipShow.value = true
-  }
-
-  function closeTipViewFn(){
-    tipShow.value = false
-  }
+  const showTipRef = ref(null);
 
   function inputTokenAmount(event) {
     const inputAmount = event.target.value.replace(/[^0-9.]/g, '').replace(/^\./, '');
@@ -217,7 +194,7 @@
 
 <template>
   <div class="profileBox">
-    <ShowTipView :tiptext="tiptext" :tiptype="tiptype" :isShow="tipShow"></ShowTipView>
+    <ShowTipView ref="showTipRef"></ShowTipView>
     <div class="acTokenBox flex_column">
       <p style="text-align: center;line-height: 60px;" class="big_bold_text border_bottom_solid">Profile</p>
       <p style="line-height: 50px; color: #000;" v-if="!hadConnected">Please connect wallet first</p>
